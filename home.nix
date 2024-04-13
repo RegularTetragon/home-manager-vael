@@ -62,12 +62,18 @@
       spotify
       filezilla
       protontricks
-      # stable.prismlauncher
       prismlauncher
       grapejuice
       libsForQt5.kpat
       xautoclick
       gimp
+      glfw-wayland
+      r2modman
+      waypipe wayvnc
+      osslsigncode
+      btop
+      stable.trenchbroom
+      stable.yabridge stable.yabridgectl stable.winetricks stable.wineWowPackages.stable stable.corefonts
       rofi-wayland swww waypaper grim slurp wl-clipboard dunst qt5ct
       (retroarch.override {
         cores = with libretro; [
@@ -75,7 +81,6 @@
           mupen64plus
           dosbox
           dolphin
-          citra
         ];
       })
   ];
@@ -112,10 +117,35 @@
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
   programs.sm64ex = {
-    enable = true;
+#    enable = true;
   };
   programs.waybar = {
     enable = true;
+    settings =  {
+      mainBar = {
+        layer = "top";
+        position = "top";
+        height = 30;
+        output = [
+          "DP-1"
+        ];
+        modules-left = [ "hyprland/workspaces" ];
+        modules-center = [ "hyprland/window" "mpris" ];
+        modules-right = [ "bluetooth" "wireplumber" "clock" "wlr/taskbar" ];
+        "hyprland/workspaces" = {
+          format = "{icon}";
+        };
+        wireplumber = {
+          on-click = "pavucontrol";
+          on-click-right = "qpwgraph";
+        };
+        bluetooth = {
+          on-click = "blueman-manager";
+          tooltip-format-connected = "{device_enumerate}";
+          tooltip-device-enumerate-connected = "{device_alias} ";
+        };
+      };
+    };
   };
   programs.obs-studio = {
     enable = true;
