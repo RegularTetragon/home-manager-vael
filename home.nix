@@ -21,6 +21,7 @@
     x11.enable = true;
     gtk.enable = true;
   };
+  fonts.fontconfig.enable = true;
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
@@ -40,8 +41,7 @@
     # (pkgs.writeShellScriptBin "my-hello" ''
     #   echo "Hello, ${config.home.username}!"
     # '')
-      nerdfonts
-      fira-code-nerdfont
+      nerdfonts fira-code-nerdfonts
       ardour
       firefox
       vscodium
@@ -182,7 +182,6 @@
         margin = "4px";
         height = 48;
         spacing = 2;
-        output = [ "eDP-1" ];
         modules-left = [ "custom/rofi" "hyprland/workspaces" "wlr/taskbar"];
         modules-center = [ "hyprland/window" "mpris" ];
         modules-right = [  "bluetooth" "network" "wireplumber" "battery" "backlight" "clock"  ];
@@ -217,7 +216,7 @@
         };
         bluetooth = {
           on-click = "blueman-manager";
-          tooltip-format-connected = "{device_enumerate";
+          tooltip-format-connected = "{device_enumerate}";
           tooltip-device-enumerate-connected = "{device_alias}";
         };
         battery = {
