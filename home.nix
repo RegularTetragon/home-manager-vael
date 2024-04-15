@@ -41,7 +41,7 @@
     # (pkgs.writeShellScriptBin "my-hello" ''
     #   echo "Hello, ${config.home.username}!"
     # '')
-      nerdfonts fira-code-nerdfonts
+      nerdfonts fira-code-nerdfont
       ardour
       firefox
       vscodium
