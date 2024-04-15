@@ -23,17 +23,21 @@
       };
       pkgs = nixpkgs.legacyPackages.${system};
     in {
-      homeConfigurations."vael" = home-manager.lib.homeManagerConfiguration {
+      homeConfigurations."vael@callisto" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
-        # Specify your home configuration modules here, for example,
-        # the path to your home.nix.
         modules = [ 
 	        ({ config, pkgs, ... }: {nixpkgs.overlays = [overlay-stable];}) 
 	        ./home.nix
+          ./callisto.nix
 	      ];
-
-        # Optionally use extraSpecialArgs
-        # to pass through arguments to home.nix
+      };
+      homeConfigurations."vael@ganymede" = home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        modules = [ 
+	        ({ config, pkgs, ... }: {nixpkgs.overlays = [overlay-stable];}) 
+	        ./home.nix
+          ./ganymede.nix
+	      ];
       };
     };
 }

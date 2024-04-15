@@ -108,6 +108,8 @@
     #   org.gradle.console=verbose
     #   org.gradle.daemon.idletimeout=3600000
     # '';
+
+
   };
 
   # You can also manage environment variables but you will have to manually
@@ -126,8 +128,146 @@
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
-  programs.sm64ex = {
-#    enable = true;
+  wayland.windowManager.hyprland = {
+    enable = true;
+    settings = {
+      "$mainMod" = "SUPER";
+      exec-once = "swww init & waybar & dunst";
+      env = [
+        "XCURSOR_SIZE,24"
+        "QT_QPA_PLATFORMTHEME,qt5ct"
+      ];
+      input = {
+        kb_layout = "us";
+        follow_mouse = 1;
+        touchpad = {
+          natural_scroll = "no";
+        };
+        sensitivity = 0;
+      };
+      "input:touchpad" = {
+        disable_while_typing = false;
+      };
+      general = {
+        gaps_in = 4;
+        gaps_out = 4; 
+        "col.active_border" = "rgba(f5bde6ff) rgba(f5bde6ff) 45deg";
+        "col.inactive_border" = "rgba(363a4fff)";
+        layout = "dwindle";
+      };
+      decoration = {
+        rounding = 12;
+        blur = {
+          enabled = true;
+          size = 4;
+          passes = 4;
+          ignore_opacity = false;
+        };
+        inactive_opacity = 0.8;
+        drop_shadow = "yes";
+        shadow_range = 4;
+        shadow_render_power = 3;
+        "col.shadow" = "rgba(1a1a1aee)";
+      };
+      animations = {
+        enabled = "yes";
+        bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
+        animation = [
+          "windows, 1, 7, myBezier, slide"
+          "border, 1, 10, default"
+          "borderangle, 1, 8, default"
+          "workspaces, 1, 6, default"
+        ];
+      };
+      dwindle = {
+        pseudotile = "yes";
+        preserve_split = true;
+      };
+      master = {
+        new_is_master = true;
+      };
+      gestures = {
+        workspace_swipe = "on";
+      };
+      device = {
+        name = "hid-256c:006d-pen";
+        output = "HDMI-A-2";
+      };
+      windowrulev2 = [
+        "stayfocused, title:^()$,class:^(steam)$"
+        "minsize 1 1, title:^()$,class:^(steam)$"
+        "float, title:^(Picture-in-Picture)$"
+        "pin, title:^(Picture-in-Picture)$"
+      ];
+
+      bind = [
+        "$mainMod, Return, exec, kitty"
+        "$mainMod, C, killactive," 
+        "$mainMod, Escape, exit," 
+        "$mainMod, E, exec, dolphin"
+        "$mainMod, F, exec, firefox"
+        "$mainMod, V, togglefloating,"
+        "$mainMod, Space, exec, rofi -show drun -show-icons"
+        "$mainMod, P, pseudo,"
+        "$mainMod, R, togglesplit,"
+        ", Print, exec, grim -g \"$(slurp -d)\" - | wl-copy"
+        "SHIFT, Print, exec, grim - | wl-copy"
+
+        # Move focus with mainMod + arrow keys
+        "$mainMod, H, movefocus, l"
+        "$mainMod, L, movefocus, r"
+        "$mainMod, K, movefocus, u"
+        "$mainMod, J, movefocus, d"
+        "$mainMod SHIFT, H, movewindow, l"
+        "$mainMod SHIFT, L, movewindow, r"
+        "$mainMod SHIFT, K, movewindow, u"
+        "$mainMod SHIFT, J, movewindow, d"
+        "$mainMod CTRL, H, resizeactive, -64 0"
+        "$mainMod CTRL, L, resizeactive, 64 0"
+        "$mainMod CTRL, K, resizeactive, 0 -64"
+        "$mainMod CTRL, J, resizeactive, 0 64"
+
+
+        "$mainMod, mouse_down, workspace, e+1"
+        "$mainMod, mouse_up, workspace, e-1"
+      ] ++ builtins.concatLists (
+        builtins.genList (
+          x:
+            let ws  = toString (if x == 0 then 10 else x);
+                key = toString x;
+            in
+            [
+              "$mainMod, ${key}, workspace, ${ws}"
+              "$mainMod SHIFT, ${key}, movetoworkspace, ${ws}"
+            ]
+          ) 10
+      );
+      
+      bindle = [
+        ", XF86MonBrightnessUp, exec, brightnessctl s +5%"
+        ", XF86MonBrightnessDown, exec, brightnessctl s 5%-"
+        ", XF86Search, exec, launchpad"
+      ];
+      bindel = [
+        ", XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+"
+        ", XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+      ];
+      bindl = [
+        ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+        ", XF86AudioPlay, exec, playerctl play-pause # the stupid key is called play , but it toggles "
+        ", XF86AudioNext, exec, playerctl next "
+        ", XF86AudioPrev, exec, playerctl previous"
+      ];
+      bindm = [
+        # Scroll through existing workspaces with mainMod + scroll
+
+        #" $mainMod, mouse_down, workspace, e+1"
+        #" $mainMod, mouse_up, workspace, e-1"
+        # Move/resize windows with mainMod + LMB/RMB and dragging
+        " $mainMod, mouse:272, movewindow"
+        " $mainMod, mouse:273, resizewindow"
+      ];
+    };
   };
   programs.waybar = {
     enable = true;
@@ -235,6 +375,7 @@
     enable = true;
     plugins = with pkgs.obs-studio-plugins; [
       wlrobs
+
     ];
   };
   programs.kitty = {
