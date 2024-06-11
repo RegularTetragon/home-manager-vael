@@ -5,15 +5,7 @@
   # manage.
   home.username = "vael";
   home.homeDirectory = "/home/vael";
-
-  # This value determines the Home Manager release that your configuration is
-  # compatible with. This helps avoid breakage when a new Home Manager release
-  # introduces backwards incompatible changes.
-  #
-  # You should not change this value, even if you update Home Manager. If you do
-  # want to update the value, then make sure to first check the Home Manager
-  # release notes.
-  home.stateVersion = "23.05"; # Please read the comment before changing.
+  home.stateVersion = "23.05";
   nixpkgs.config.allowUnfree = true;
   home.pointerCursor = {
     package = pkgs.catppuccin-cursors.macchiatoPink;
@@ -25,22 +17,6 @@
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
-    # # Adds the 'hello' command to your environment. It prints a friendly
-    # # "Hello, world!" when run.
-    # pkgs.hello
-
-    # # It is sometimes useful to fine-tune packages, for example, by applying
-    # # overrides. You can do that directly here, just don't forget the
-    # # parentheses. Maybe you want to install Nerd Fonts with a limited number of
-    # # fonts?
-    # (pkgs.nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
-
-    # # You can also create simple shell scripts directly inside your
-    # # configuration. For example, this adds a command 'my-hello' to your
-    # # environment:
-    # (pkgs.writeShellScriptBin "my-hello" ''
-    #   echo "Hello, ${config.home.username}!"
-    # '')
       nerdfonts fira-code-nerdfont
       ardour
       firefox
@@ -49,7 +25,7 @@
       steamcmd
       discord
       dolphin
-      deluge
+      deluge wgnord 
       krita
       lmms
       woeusb-ng ntfs3g
@@ -82,9 +58,12 @@
       btop
       brightnessctl
       hyprcursor
+      thunderbird
       stable.trenchbroom
       stable.yabridge stable.yabridgectl stable.winetricks stable.wineWowPackages.stable stable.corefonts
-      rofi-wayland swww waypaper grim slurp wl-clipboard dunst qt5ct networkmanagerapplet
+      rofi-wayland swww waypaper grim slurp wl-clipboard dunst qt5ct networkmanagerapplet jq
+      # language servers and such
+      nodePackages.nodejs nodePackages.coc-clangd clang-tools nil
       (retroarch.override {
         cores = with libretro; [
           mgba
@@ -95,36 +74,6 @@
       })
   ];
 
-  # Home Manager is pretty good at managing dotfiles. The primary way to manage
-  # plain files is through 'home.file'.
-  home.file = {
-    # # Building this configuration will create a copy of 'dotfiles/screenrc' in
-    # # the Nix store. Activating the configuration will then make '~/.screenrc' a
-    # # symlink to the Nix store copy.
-    # ".screenrc".source = dotfiles/screenrc;
-
-    # # You can also set the file content immediately.
-    # ".gradle/gradle.properties".text = ''
-    #   org.gradle.console=verbose
-    #   org.gradle.daemon.idletimeout=3600000
-    # '';
-
-
-  };
-
-  # You can also manage environment variables but you will have to manually
-  # source
-  #
-  #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  /etc/profiles/per-user/vael/etc/profile.d/hm-session-vars.sh
-  #
-  # if you don't want to manage your shell through Home Manager.
-  home.sessionVariables = {
-    # EDITOR = "emacs";
-  };
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
@@ -163,11 +112,11 @@
           passes = 4;
           ignore_opacity = false;
         };
-        inactive_opacity = 0.8;
+        inactive_opacity = 0.9;
         drop_shadow = "yes";
         shadow_range = 4;
         shadow_render_power = 3;
-        "col.shadow" = "rgba(1a1a1aee)";
+        "col.shadow" = "rgba(1a1a1a00)";
       };
       animations = {
         enabled = "yes";
@@ -259,11 +208,6 @@
         ", XF86AudioPrev, exec, playerctl previous"
       ];
       bindm = [
-        # Scroll through existing workspaces with mainMod + scroll
-
-        #" $mainMod, mouse_down, workspace, e+1"
-        #" $mainMod, mouse_up, workspace, e-1"
-        # Move/resize windows with mainMod + LMB/RMB and dragging
         " $mainMod, mouse:272, movewindow"
         " $mainMod, mouse:273, resizewindow"
       ];
@@ -277,7 +221,7 @@
       font-size: 18;
     }
     window#waybar {
-      opacity: 0.8;
+      opacity: 0.9;
       border-radius: 24;
     }
     .modules-right {
@@ -324,7 +268,7 @@
         spacing = 2;
         modules-left = [ "custom/rofi" "hyprland/workspaces" "wlr/taskbar"];
         modules-center = [ "hyprland/window" "mpris" ];
-        modules-right = [  "bluetooth" "network" "wireplumber" "battery" "backlight" "clock"  ];
+        modules-right = [  "bluetooth" "network" "custom/vpn" "wireplumber" "battery" "backlight" "clock"  ];
         "hyprland/workspaces" = {
           format = "{icon}";
         };
@@ -336,6 +280,16 @@
           format = "";
           on-click = "rofi -show run";
         };
+        "custom/vpn" = {
+          format = "{icon}";
+          tooltip-format = "{}";
+          format-icons = ["" ""];
+          exec = ''
+            systemctl list-units openvpn-* --output json | jq --unbuffered --compact-output '{percentage: (if length > 0 then 100 else 0 end), text: (.[].unit // "none") | sub("^openvpn-";"") | sub(".service"; "")}'
+          '';
+          return-type = "json";
+          interval = 15;
+        };
         clock = {
           format = "{:%H.%M}";
           tooltip = true;
@@ -343,7 +297,8 @@
           timezone = "America/New_York";
         };
         wireplumber = {
-          format = "{volume}% {icon}";
+          format = "{icon}";
+          tooltip-format = "{node_name} {volume}%";
           format-muted = "󰝟";
           format-icons = ["" "" ""];
           on-click = "pavucontrol";
@@ -351,21 +306,30 @@
         };
         network = {
           on-click = "nm-connection-editor";
-          format-wifi = "{essid} {signalStrength}% ";
-          format-disconnected = "no wifi";
+          format-icons = ["󰤯" "󰤯" "󰤟" "󰤢" "󰤨"];
+          tooltip-format-wifi = "{essid}";
+          format-wifi = "{icon}";
+          format-disconnected = "󰤮";
+          format-ethernet = "󰛳";
+          format-linked = "󰲊";
         };
         bluetooth = {
+          format-connected = "󰂰";
+          format-on = "󰂯";
+          format-off="󰂲";
           on-click = "blueman-manager";
           tooltip-format-connected = "{device_enumerate}";
           tooltip-device-enumerate-connected = "{device_alias}";
         };
         battery = {
-          format = " {capacity}% {icon}";
-          format-charging = "{capacity}+% {icon}";
-          format-icons = ["" "" "" "" ""];
+          format = " {icon}";
+          tooltip-format = "{capacity}%";
+          format-charging = "{icon}󱐋";
+          format-icons = ["󰂃" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󱟢"];
         };
         backlight = {
-          format = "{percent}% {icon}";
+          format = "󰍹";
+          tooltip-format="{percent}%";
           format-icons = ["󰃜" "󰃛" "󰃚"  "󰃞" "󰃟" "󰃝" "󰃠"];
         };
       };
@@ -398,7 +362,11 @@
       nvim-lspconfig
       nvim-treesitter.withAllGrammars
       nvim-web-devicons
+      catppuccin-nvim
       telescope-nvim
+      telescope-coc-nvim
+      coc-nvim
+      coc-clangd
     ];
     extraConfig = ''
       set nowrap
@@ -407,6 +375,8 @@
       set shiftwidth=2
       set expandtab
       set softtabstop=2
+      colorscheme catppuccin-macchiato
+      inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
     '';
   };
   gtk = {
