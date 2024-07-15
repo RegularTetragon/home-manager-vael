@@ -28,7 +28,7 @@
       deluge wgnord 
       krita
       lmms
-      woeusb-ng ntfs3g
+      # woeusb-ng ntfs3g
       hyfetch
       audacity
       bitwig-studio
@@ -38,7 +38,7 @@
       libreoffice-qt
       hunspell
       hunspellDicts.en_US
-      cura openscad-unstable
+      stable.cura openscad-unstable
       helvum
       ffmpeg
       killall
@@ -60,7 +60,7 @@
       hyprcursor
       thunderbird
       dosbox-x
-      stable.trenchbroom
+      # trenchbroom
       stable.yabridge stable.yabridgectl stable.winetricks stable.wineWowPackages.stable stable.corefonts
       rofi-wayland swww waypaper grim slurp wl-clipboard dunst qt5ct networkmanagerapplet jq
       # language servers and such
