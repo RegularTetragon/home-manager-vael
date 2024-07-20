@@ -3,7 +3,7 @@
 
   inputs = {
     # Specify the source of Home Manager and Nixpkgs.
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "nixpkgs/nixos-24.05";
     nixpkgs-unstable.url = "nixpkgs/nixos-unstable";
     home-manager = {
@@ -36,7 +36,7 @@
       homeConfigurations."vael@callisto" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [
-	        ./home.nix
+          ./home.nix
           ./callisto.nix
 	      ];
       };

@@ -9,7 +9,7 @@
   nixpkgs.config.allowUnfree = true;
   home.pointerCursor = {
     package = pkgs.catppuccin-cursors.macchiatoPink;
-    name = "Catppuccin-Macchiato-Pink-Cursors";
+    name = "catppuccin-macchiato-pink-cursors";
     x11.enable = true;
     gtk.enable = true;
   };
@@ -23,7 +23,7 @@
       vscodium
       godot_4
       steamcmd
-      discord
+      discord-canary
       dolphin
       deluge wgnord 
       krita
@@ -84,8 +84,9 @@
       "$mainMod" = "SUPER";
       exec-once = "swww init & waybar & dunst";
       env = [
-        "XCURSOR_SIZE,24"
         "QT_QPA_PLATFORMTHEME,qt5ct"
+        "HYPRCURSOR_THEME,catppuccin-macchiato-pink-cursors"
+        "HYPRCURSOR_SIZE,32"
       ];
       input = {
         kb_layout = "us";
@@ -133,9 +134,6 @@
       dwindle = {
         pseudotile = "yes";
         preserve_split = true;
-      };
-      master = {
-        new_is_master = true;
       };
       gestures = {
         workspace_swipe = "on";
@@ -225,6 +223,8 @@
     window#waybar {
       opacity: 0.9;
       border-radius: 24;
+      background: #24273a;
+      color: #cad3f5;
     }
     .modules-right {
       padding: 4px;
@@ -391,6 +391,10 @@
         tweaks = [ "rimless" ];
         variant = "macchiato";
       };
+    };
+    iconTheme = {
+      package = pkgs.adwaita-icon-theme;
+      name = "Adwaita";
     };
   };
   # programs.sm64ex.baserom = /home/vael/roms/n64/baserom.us.z64;
