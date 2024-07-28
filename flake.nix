@@ -10,9 +10,15 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    hyprland = {
+      type = "git";
+      url = "https://github.com/hyprwm/Hyprland";
+      ref = "aquamarine";
+      submodules = true;
+    };
   };
 
-  outputs = { nixpkgs, nixpkgs-stable, nixpkgs-unstable, home-manager,  ... }:
+  outputs = { nixpkgs, nixpkgs-stable, nixpkgs-unstable, home-manager, hyprland,  ... }:
     let
       system = "x86_64-linux";
       overlay-stable = final: prev: {
@@ -43,6 +49,7 @@
       homeConfigurations."vael@ganymede" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [
+          hyprland.homeManagerModules.default
 	        ./home.nix
           ./ganymede.nix
 	      ];

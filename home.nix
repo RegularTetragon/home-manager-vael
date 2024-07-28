@@ -10,6 +10,7 @@
   home.pointerCursor = {
     package = pkgs.catppuccin-cursors.macchiatoPink;
     name = "catppuccin-macchiato-pink-cursors";
+    size = 32;
     x11.enable = true;
     gtk.enable = true;
   };
@@ -24,7 +25,7 @@
       godot_4
       steamcmd
       discord-canary
-      dolphin
+      nautilus
       deluge wgnord 
       krita
       lmms
@@ -55,6 +56,7 @@
       r2modman
       waypipe wayvnc
       osslsigncode
+      bambu-studio
       btop ncdu
       brightnessctl
       hyprcursor
@@ -111,15 +113,15 @@
         rounding = 12;
         blur = {
           enabled = true;
-          size = 4;
+          size = 16;
           passes = 4;
-          ignore_opacity = false;
+          ignore_opacity = true;
         };
-        inactive_opacity = 0.9;
+        inactive_opacity = 0.8;
         drop_shadow = "yes";
         shadow_range = 4;
         shadow_render_power = 3;
-        "col.shadow" = "rgba(1a1a1a00)";
+        "col.shadow" = "rgba(1a1a1aff)";
       };
       animations = {
         enabled = "yes";
@@ -153,7 +155,7 @@
         "$mainMod, Return, exec, kitty"
         "$mainMod, C, killactive," 
         "$mainMod, Escape, exit," 
-        "$mainMod, E, exec, dolphin"
+        "$mainMod, E, exec, nautilus"
         "$mainMod, F, exec, firefox"
         "$mainMod, V, togglefloating,"
         "$mainMod, Space, exec, rofi -show drun -show-icons"
@@ -251,6 +253,9 @@
       border: 4px solid;
       padding: 0 1em 0 0.5em;
       font-size: 30;
+    }
+    #workspaces button {
+      color: #cad3f5;
     }
     #workspaces button.active, #taskbar button.active {
       background: #f5bde6;
@@ -384,7 +389,7 @@
   gtk = {
     enable = true;
     theme = {
-      name = "Catppuccin-Macchiato-Compact-Pink-Dark";
+      name = "catppuccin-macchiato-pink-compact+rimless";
       package = pkgs.catppuccin-gtk.override {
         accents = [ "pink" ];
         size = "compact";
@@ -393,8 +398,11 @@
       };
     };
     iconTheme = {
-      package = pkgs.adwaita-icon-theme;
-      name = "Adwaita";
+      package = pkgs.catppuccin-papirus-folders.override {
+        flavor = "macchiato";
+        accent = "pink";
+      };
+      name = "Papirus-Dark";
     };
   };
   # programs.sm64ex.baserom = /home/vael/roms/n64/baserom.us.z64;
