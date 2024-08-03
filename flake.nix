@@ -13,7 +13,8 @@
     hyprland = {
       type = "git";
       url = "https://github.com/hyprwm/Hyprland";
-      ref = "aquamarine";
+      ref = "main";
+      # rev = "f7fb7e7e49e3b47f9b72c55fbf2d093e1a7981f5";
       submodules = true;
     };
   };
@@ -42,6 +43,7 @@
       homeConfigurations."vael@callisto" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [
+          hyprland.homeManagerModules.default
           ./home.nix
           ./callisto.nix
 	      ];

@@ -1,4 +1,4 @@
-{ config, pkgs,  ... }:
+{ config, pkgs, ... }:
 
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -56,7 +56,7 @@
       r2modman
       waypipe wayvnc
       osslsigncode
-      bambu-studio
+      bambu-studio orca-slicer
       btop ncdu
       brightnessctl
       hyprcursor
@@ -92,8 +92,8 @@
       ];
       input = {
         kb_layout = "us";
-        follow_mouse = 1;
-        mouse_refocus = false;
+        # follow_mouse = 1;
+        # mouse_refocus = 1;
         touchpad = {
           natural_scroll = "no";
         };
@@ -124,7 +124,7 @@
         "col.shadow" = "rgba(1a1a1aff)";
       };
       animations = {
-        enabled = "yes";
+        enabled = "no";
         bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
         animation = [
           "windows, 1, 7, myBezier, slide"
@@ -147,6 +147,7 @@
       windowrulev2 = [
         "stayfocused, title:^()$,class:^(steam)$"
         "minsize 1 1, title:^()$,class:^(steam)$"
+       # "stayfocused, class:^(OrcaSlicer)$,title:^()$"
         "float, title:^(Picture-in-Picture)$"
         "pin, title:^(Picture-in-Picture)$"
       ];
