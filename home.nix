@@ -28,7 +28,7 @@
       nautilus qview
       deluge wgnord 
       krita
-      lmms
+      lmms vcv-rack
       # woeusb-ng ntfs3g
       hyfetch
       audacity
@@ -39,7 +39,7 @@
       libreoffice-qt
       hunspell
       hunspellDicts.en_US
-      stable.cura openscad-unstable
+      stable.cura stable.openscad-unstable
       helvum
       ffmpeg
       killall
@@ -48,7 +48,6 @@
       filezilla
       protontricks
       prismlauncher
-      grapejuice
       libsForQt5.kpat
       xautoclick
       gimp
@@ -202,8 +201,8 @@
         "$mainMod CTRL, right, movewindow, r"
         "$mainMod CTRL, up, movewindow, u"
         "$mainMod CTRL, down, movewindow, d"
-        "$mainMod, comma, layoutmsg, addmaster"
-        "$mainMod, period, layoutmsg, removemaster"
+        "$mainMod, period, layoutmsg, addmaster"
+        "$mainMod, comma, layoutmsg, removemaster"
         "$mainMod SHIFT, left, resizeactive, -64 0"
         "$mainMod SHIFT, right, resizeactive, 64 0"
         "$mainMod SHIFT, up, resizeactive, 0 -64"
@@ -256,7 +255,7 @@
       font-size: 18;
     }
     window#waybar {
-      opacity: 0.9;
+      opacity: 0.8;
       border-radius: 24;
       background: #24273a;
       color: #cad3f5;
