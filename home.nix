@@ -18,7 +18,7 @@
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
-      nerdfonts fira-code-nerdfont
+      nerd-fonts.fira-code
       ardour
       firefox
       vscodium
@@ -29,17 +29,18 @@
       deluge wgnord 
       krita
       lmms vcv-rack
-      # woeusb-ng ntfs3g
       hyfetch
       audacity
       bitwig-studio
       blender
       vlc
+      ghc
       pavucontrol
       libreoffice-qt
       hunspell
       hunspellDicts.en_US
       stable.cura stable.openscad-unstable
+      xdg-desktop-portal-hyprland
       helvum
       ffmpeg
       killall
@@ -50,6 +51,7 @@
       prismlauncher
       libsForQt5.kpat
       xautoclick
+      sauerbraten
       gimp
       glfw-wayland
       r2modman
@@ -60,21 +62,23 @@
       brightnessctl
       hyprcursor
       thunderbird
-      dosbox-x
+      dosbox-x lutris
+      dolphin-emu
+      gamemode mangohud
       # trenchbroom
       lutris
       stable.yabridge stable.yabridgectl stable.winetricks stable.wineWowPackages.waylandFull stable.corefonts
-      swww waypaper grim slurp wl-clipboard dunst qt5ct networkmanagerapplet jq
+      rofi-wayland waypaper grim slurp wl-clipboard dunst libsForQt5.qt5ct networkmanagerapplet jq
       # language servers and such
       nodePackages.nodejs nodePackages.coc-clangd clang-tools nil
-      (retroarch.override {
-        cores = with libretro; [
-          mgba
-          mupen64plus
-          dosbox
-          dolphin
-        ];
-      })
+    # (retroarch.override {
+    #   cores = with libretro; [
+    #     mgba
+    #     mupen64plus
+    #     dosbox
+    #     dolphin
+    #   ];
+    # })
   ];
   
   # Let Home Manager install and manage itself.
@@ -99,7 +103,7 @@
     enable = true;
     settings = {
       "$mainMod" = "SUPER";
-      exec-once = "swww init & waybar & dunst";
+      exec-once = "waybar & dunst";
       env = [
         "QT_QPA_PLATFORMTHEME,qt5ct"
         "HYPRCURSOR_THEME,catppuccin-macchiato-pink-cursors"
@@ -134,10 +138,12 @@
           ignore_opacity = true;
         };
         inactive_opacity = 0.8;
-        drop_shadow = "yes";
-        shadow_range = 8;
-        shadow_render_power = 1;
-        "col.shadow" = "0xee1a1a1a";
+        shadow = {
+          enabled = true;
+          range = 4;
+          render_power = 3;
+          color = "rgba(1a1a1aff)";
+        };
       };
       animations = {
         enabled = "yes";
@@ -244,6 +250,27 @@
       bindm = [
         " $mainMod, mouse:272, movewindow"
         " $mainMod, mouse:273, resizewindow"
+      ];
+    };
+  };
+  services.hyprpaper = {
+    enable = true;
+    settings = {
+      ipc = "on";
+      splash = false;
+      preload = ["${./wallpapers/rpnickson.jpg}"];
+      wallpaper = ", ${./wallpapers/rpnickson.jpg}";
+    };
+  };
+  services.hypridle = {
+    enable = true;
+    settings = {
+      listener = [
+        {
+          timeout = 3600;
+          on-timeout = "hyprctl dispatch dpms off";
+          on-resume = "hyprctl dispatch dpms on";
+        }
       ];
     };
   };
@@ -378,14 +405,13 @@
     enable = true;
     plugins = with pkgs.obs-studio-plugins; [
       wlrobs
-
     ];
   };
   programs.kitty = {
     enable = true;
-    theme = "Catppuccin-Macchiato";
+    themeFile = "Catppuccin-Macchiato";
     font = {
-      package = pkgs.fira-code-nerdfont;
+      package = pkgs.nerd-fonts.fira-code;
       name = "FiraCode Nerd Font Mono";
     };
     extraConfig = ''
@@ -438,4 +464,4 @@
     };
   };
   # programs.sm64ex.baserom = /home/vael/roms/n64/baserom.us.z64;
-}
+} 
