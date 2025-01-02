@@ -43,6 +43,7 @@
       xdg-desktop-portal-hyprland
       helvum
       ffmpeg
+      organicmaps
       killall
       pstree
       spotify
@@ -60,19 +61,22 @@
       bambu-studio orca-slicer
       btop ncdu file
       brightnessctl
-      hyprcursor
+      hyprcursor hyprpaper hyprpolkitagent
       thunderbird
-      dosbox-x lutris
-      dolphin-emu
-      gamemode mangohud
+      dosbox-x
       # trenchbroom
       lutris
       sweethome3d.application
       alsa-scarlett-gui
+      # stable.freecad
       stable.yabridge stable.yabridgectl stable.winetricks stable.wineWowPackages.waylandFull stable.corefonts
-      rofi-wayland waypaper grim slurp wl-clipboard dunst libsForQt5.qt5ct networkmanagerapplet jq
+      grim slurp wl-clipboard dunst libsForQt5.qt5ct networkmanagerapplet jq
+      kdePackages.qtstyleplugin-kvantum
+      (catppuccin-kvantum.override {
+        accent = "pink";
+        variant = "macchiato";
+      })
       hyprpolkitagent
-
       # language servers and such
       nodePackages.nodejs nodePackages.coc-clangd clang-tools nil
     # (retroarch.override {
@@ -102,7 +106,7 @@
     terminal = "${pkgs.kitty}/bin/kitty";
     font = "FiraCode Nerd Font 18";
     package = pkgs.rofi-wayland;
-    theme = "catppuccin-macchiato";
+    theme = ./rofi/themes/catppuccin-macchiato.rasi;
     extraConfig = {
       display-drun="   Apps ";
       display-run="   Run ";
@@ -125,6 +129,10 @@
       ];
       env = [
         "QT_QPA_PLATFORMTHEME,qt5ct"
+        "QT_QPA_PLATFORM,wayland"
+        "QT_WAYLAND_DISABLE_WINDOWDECORATION,1"
+        "QT_AUTO_SCREEN_SCALE_FACTOR,1"
+        "QT_STYLE_OVERRIDE,kvantum"
         "HYPRCURSOR_THEME,catppuccin-macchiato-pink-cursors"
         "HYPRCURSOR_SIZE,32"
         "WINEPREFIX=${config.home.homeDirectory}/.wine/winecfg"
@@ -149,12 +157,11 @@
         layout = "master";
       };
       decoration = {
-        rounding = 12;
+        rounding = 8;
         blur = {
           enabled = true;
           size = 16;
-          passes = 2;
-          ignore_opacity = true;
+          passes = 4;
         };
         inactive_opacity = 0.95;
         shadow = {
@@ -175,7 +182,7 @@
         enabled = "yes";
         bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
         animation = [
-          "windows, 1, 7, myBezier, slide"
+          "windows, 1, 7, myBezier, popin"
           "border, 1, 10, default"
           "borderangle, 1, 8, default"
           "workspaces, 1, 6, default"
@@ -203,6 +210,9 @@
         "float, title:^(Picture-in-Picture)$"
         "pin, title:^(Picture-in-Picture)$"
       ];
+      layerrule = [
+        "blur, waybar"
+      ];
       bindr = [
         "$mainMod, Super_L, exec, killall rofi || rofi -show drun -show-icons"
       ];
@@ -213,10 +223,32 @@
         "$mainMod, F, exec, firefox"
         "$mainMod, V, togglefloating,"
         "$mainMod, Space, exec, kitty"
+        "$mainMod, P, pseudo,"
+        "$mainMod, R, togglesplit,"
+        "$mainMod, tab, exec, pkill waybar || waybar"
         ", Print, exec, grim -g \"$(slurp -d)\" - | wl-copy"
         "SHIFT, Print, exec, grim - | wl-copy"
 
         # master binds
+        "$mainMod, left, movefocus, l"
+        "$mainMod, right, movefocus, r"
+        "$mainMod, up, movefocus, u"
+        "$mainMod, down, movefocus, d"
+        "$mainMod CTRL, left, movewindow, l"
+        "$mainMod CTRL, right, movewindow, r"
+        "$mainMod CTRL, up, movewindow, u"
+        "$mainMod CTRL, down, movewindow, d"
+        "$mainMod, period, layoutmsg, addmaster"
+        "$mainMod, comma, layoutmsg, removemaster"
+        "$mainMod SHIFT, left, resizeactive, -64 0"
+        "$mainMod SHIFT, right, resizeactive, 64 0"
+        "$mainMod SHIFT, up, resizeactive, 0 -64"
+        "$mainMod SHIFT, down, resizeactive, 0 64"
+        "$mainMod ALT, left,  layoutmsg, orientationleft"
+        "$mainMod ALT, right, layoutmsg, orientationright"
+        "$mainMod ALT, up,    layoutmsg, orientationtop"
+        "$mainMod ALT, down,  layoutmsg, orientationbottom"
+
         "$mainMod, M, movefocus, l"
         "$mainMod, I, movefocus, r"
         "$mainMod, E, movefocus, u"
@@ -236,7 +268,7 @@
         "$mainMod ALT, E,    layoutmsg, orientationtop"
         "$mainMod ALT, N,  layoutmsg, orientationbottom"
         "$mainMod ALT, space,  layoutmsg, orientationcenter"
-        "$mainMod, tab, workspace, e+1"
+        
 
         "$mainMod, mouse_up, layoutmsg, removemaster"
         "$mainMod, mouse_down, layoutmsg, addmaster"
@@ -301,7 +333,7 @@
     }
     window#waybar {
       opacity: 0.95;
-      border-radius: 24;
+      border-radius: 8;
       background: #24273a;
       color: #cad3f5;
     }
@@ -320,12 +352,12 @@
       border-radius: 20px 6px 6px 20px;
     }
     .modules-right > *:last-child {
-      border-radius: 6px 20px 20px 6px;
+      border-radius: 6px 8px 8px 6px;
     }
     #custom-rofi {
       background: #f5bde6;
       color: #24273a;
-      border-radius: 24px;
+      border-radius: 8px;
       border-color: #24273a;
       border: 4px solid;
       padding: 0 1em 0 0.5em;
@@ -337,7 +369,7 @@
     #workspaces button.active, #taskbar button.active {
       background: #f5bde6;
       color: #24273a;
-      border-radius: 12px;
+      border-radius: 8px;
       border-color: #24273a;
       border: 4px solid;
     }
@@ -362,7 +394,7 @@
         };
         "custom/rofi" = {
           format = "";
-          on-click = "rofi -show run";
+          on-click = "killall rofi || rofi -show drun -show-icons";
         };
         "custom/vpn" = {
           format = "{icon}";
@@ -371,6 +403,7 @@
           exec = ''
             systemctl list-units openvpn-* --output json | jq --unbuffered --compact-output '{percentage: (if length > 0 then 100 else 0 end), text: (.[].unit // "none") | sub("^openvpn-";"") | sub(".service"; "")}'
           '';
+          on-click = "pkexec systemctl stop openvpn-p2p.service";
           return-type = "json";
           interval = 15;
         };
