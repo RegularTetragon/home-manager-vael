@@ -67,8 +67,12 @@
       gamemode mangohud
       # trenchbroom
       lutris
+      sweethome3d.application
+      alsa-scarlett-gui
       stable.yabridge stable.yabridgectl stable.winetricks stable.wineWowPackages.waylandFull stable.corefonts
       rofi-wayland waypaper grim slurp wl-clipboard dunst libsForQt5.qt5ct networkmanagerapplet jq
+      hyprpolkitagent
+
       # language servers and such
       nodePackages.nodejs nodePackages.coc-clangd clang-tools nil
     # (retroarch.override {
@@ -83,7 +87,16 @@
   
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
+  programs.bash = {
+    bashrcExtra = ''
+    if uwsm check may-start && uwsm select; then
+      exec systemd-cat -t uwsm_start uwsm start default
+    fi
+    '';
+    enable = true;
+  };
 
+  
   programs.rofi = {
     enable = true;
     terminal = "${pkgs.kitty}/bin/kitty";
@@ -101,9 +114,15 @@
 
   wayland.windowManager.hyprland = {
     enable = true;
+    systemd.enable = false;
     settings = {
       "$mainMod" = "SUPER";
-      exec-once = "waybar & dunst";
+      exec-once = [
+        "pkill waybar; waybar"
+        "dunst"
+        "systemctl --user start hyprpaper.service"
+        "systemctl --user start hyprpolkitagent.service"
+      ];
       env = [
         "QT_QPA_PLATFORMTHEME,qt5ct"
         "HYPRCURSOR_THEME,catppuccin-macchiato-pink-cursors"
@@ -137,13 +156,20 @@
           passes = 2;
           ignore_opacity = true;
         };
-        inactive_opacity = 0.8;
+        inactive_opacity = 0.95;
         shadow = {
           enabled = true;
           range = 4;
           render_power = 3;
           color = "rgba(1a1a1aff)";
         };
+      };
+      experimental = {
+        xx_color_management_v4 = true;
+        wide_color_gamut = true;
+      };
+      cursor = {
+        no_hardware_cursors = 0;
       };
       animations = {
         enabled = "yes";
@@ -183,45 +209,37 @@
       bind = [
         "$mainMod, C, killactive," 
         "$mainMod, Escape, exit," 
-        "$mainMod, E, exec, nautilus"
+        "$mainMod, A, exec, nautilus"
         "$mainMod, F, exec, firefox"
         "$mainMod, V, togglefloating,"
         "$mainMod, Space, exec, kitty"
-        "$mainMod, P, pseudo,"
-        "$mainMod, R, togglesplit,"
         ", Print, exec, grim -g \"$(slurp -d)\" - | wl-copy"
         "SHIFT, Print, exec, grim - | wl-copy"
 
-        # Move focus with mainMod + arrow keys
-        "$mainMod SHIFT, H, movewindow, l"
-        "$mainMod SHIFT, L, movewindow, r"
-        "$mainMod SHIFT, K, movewindow, u"
-        "$mainMod SHIFT, J, movewindow, d"
-
         # master binds
-        "$mainMod, left, movefocus, l"
-        "$mainMod, right, movefocus, r"
-        "$mainMod, up, movefocus, u"
-        "$mainMod, down, movefocus, d"
-        "$mainMod CTRL, left, movewindow, l"
-        "$mainMod CTRL, right, movewindow, r"
-        "$mainMod CTRL, up, movewindow, u"
-        "$mainMod CTRL, down, movewindow, d"
-        "$mainMod, period, layoutmsg, addmaster"
-        "$mainMod, comma, layoutmsg, removemaster"
-        "$mainMod SHIFT, left, resizeactive, -64 0"
-        "$mainMod SHIFT, right, resizeactive, 64 0"
-        "$mainMod SHIFT, up, resizeactive, 0 -64"
-        "$mainMod SHIFT, down, resizeactive, 0 64"
-        "$mainMod ALT, left,  layoutmsg, orientationleft"
-        "$mainMod ALT, right, layoutmsg, orientationright"
-        "$mainMod ALT, up,    layoutmsg, orientationtop"
-        "$mainMod ALT, down,  layoutmsg, orientationbottom"
+        "$mainMod, M, movefocus, l"
+        "$mainMod, I, movefocus, r"
+        "$mainMod, E, movefocus, u"
+        "$mainMod, N, movefocus, d"
+        "$mainMod, J, movewindow, l"
+        "$mainMod, Y, movewindow, r"
+        "$mainMod, U, movewindow, u"
+        "$mainMod, L, movewindow, d"
+        "$mainMod, semicolon, layoutmsg, addmaster"
+        "$mainMod, O, layoutmsg, removemaster"
+        "$mainMod, K, resizeactive, -64 0"
+        "$mainMod, period, resizeactive, 64 0"
+        "$mainMod, comma, resizeactive, 0 -64"
+        "$mainMod, H, resizeactive, 0 64"
+        "$mainMod ALT, M,  layoutmsg, orientationleft"
+        "$mainMod ALT, I, layoutmsg, orientationright"
+        "$mainMod ALT, E,    layoutmsg, orientationtop"
+        "$mainMod ALT, N,  layoutmsg, orientationbottom"
         "$mainMod ALT, space,  layoutmsg, orientationcenter"
         "$mainMod, tab, workspace, e+1"
 
-        "$mainMod, mouse_down, workspace, e+1"
-        "$mainMod, mouse_up, workspace, e-1"
+        "$mainMod, mouse_up, layoutmsg, removemaster"
+        "$mainMod, mouse_down, layoutmsg, addmaster"
       ] ++ builtins.concatLists (
         builtins.genList (
           x:
@@ -258,8 +276,8 @@
     settings = {
       ipc = "on";
       splash = false;
-      preload = ["${./wallpapers/rpnickson.jpg}"];
-      wallpaper = ", ${./wallpapers/rpnickson.jpg}";
+      preload = ["${./wallpapers/rpnickson.jpg}" "${./wallpapers/atglobe.jpeg}" "${./wallpapers/atlandscape.jpg}"];
+      wallpaper = ", ${./wallpapers/atglobe.jpeg}";
     };
   };
   services.hypridle = {
@@ -267,7 +285,7 @@
     settings = {
       listener = [
         {
-          timeout = 3600;
+          timeout = 300;
           on-timeout = "hyprctl dispatch dpms off";
           on-resume = "hyprctl dispatch dpms on";
         }
@@ -282,7 +300,7 @@
       font-size: 18;
     }
     window#waybar {
-      opacity: 0.8;
+      opacity: 0.95;
       border-radius: 24;
       background: #24273a;
       color: #cad3f5;
@@ -360,7 +378,7 @@
           format = "{:%H.%M}";
           tooltip = true;
           tooltip-format = "{:%Y-%m-%d}";
-          timezone = "America/New_York";
+          timezone = "America/Denver";
         };
         wireplumber = {
           format = "{icon}";
