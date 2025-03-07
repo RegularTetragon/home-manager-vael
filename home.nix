@@ -7,6 +7,7 @@
   home.homeDirectory = "/home/vael";
   home.stateVersion = "23.05";
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.permittedInsecurePackages = [ "freeimage-unstable-2021-11-01" ];
   home.pointerCursor = {
     package = pkgs.catppuccin-cursors.macchiatoPink;
     name = "catppuccin-macchiato-pink-cursors";
@@ -24,7 +25,7 @@
       vscodium
       godot_4
       steamcmd
-      discord-canary
+      discord
       nautilus qview
       deluge wgnord 
       krita
@@ -40,7 +41,8 @@
       hunspell
       hunspellDicts.en_US
       stable.cura stable.openscad-unstable
-      xdg-desktop-portal-hyprland
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal
       helvum
       ffmpeg
       organicmaps
@@ -52,7 +54,7 @@
       prismlauncher
       libsForQt5.kpat
       xautoclick
-      sauerbraten
+      stable.sauerbraten
       gimp
       glfw-wayland
       r2modman
@@ -65,7 +67,12 @@
       thunderbird
       dosbox-x
       # trenchbroom
+      kdenlive
+      dolphin-emu
+      gamemode mangohud
+      trenchbroom
       lutris
+      itch
       sweethome3d.application
       alsa-scarlett-gui
       # stable.freecad
@@ -93,6 +100,8 @@
   programs.home-manager.enable = true;
   programs.bash = {
     bashrcExtra = ''
+    set -o vi
+    bind 'set show-mode-in-prompt on'
     if uwsm check may-start && uwsm select; then
       exec systemd-cat -t uwsm_start uwsm start default
     fi
@@ -119,6 +128,8 @@
   wayland.windowManager.hyprland = {
     enable = true;
     systemd.enable = false;
+    package = null;
+    portalPackage = null;
     settings = {
       "$mainMod" = "SUPER";
       exec-once = [
@@ -126,6 +137,7 @@
         "dunst"
         "systemctl --user start hyprpaper.service"
         "systemctl --user start hyprpolkitagent.service"
+        "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
       ];
       env = [
         "QT_QPA_PLATFORMTHEME,qt5ct"
@@ -173,7 +185,6 @@
       };
       experimental = {
         xx_color_management_v4 = true;
-        wide_color_gamut = true;
       };
       cursor = {
         no_hardware_cursors = 0;
@@ -317,7 +328,7 @@
     settings = {
       listener = [
         {
-          timeout = 300;
+          timeout = 1200;
           on-timeout = "hyprctl dispatch dpms off";
           on-resume = "hyprctl dispatch dpms on";
         }

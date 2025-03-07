@@ -37,6 +37,9 @@
       pkgs = import nixpkgs {
         inherit system;
         config.allowUnfree = true;
+        config.permittedInsecurePackages = [
+          "freeimage-unstable-2021-11-01"
+        ];
         overlays = [overlay-stable overlay-unstable];
       };
     in {
