@@ -4,7 +4,7 @@
   inputs = {
     # Specify the source of Home Manager and Nixpkgs.
     nixpkgs.url = "nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "nixpkgs/nixos-24.05";
+    nixpkgs-stable.url = "nixpkgs/nixos-24.11";
     nixpkgs-unstable.url = "nixpkgs/nixos-unstable";
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -19,13 +19,21 @@
     };
   };
 
-  outputs = { nixpkgs, nixpkgs-stable, nixpkgs-unstable, home-manager, hyprland,  ... }:
+  outputs =
+    {
+      nixpkgs,
+      nixpkgs-stable,
+      nixpkgs-unstable,
+      home-manager,
+      hyprland,
+      ...
+    }:
     let
       system = "x86_64-linux";
       overlay-stable = final: prev: {
         stable = import nixpkgs-stable {
           inherit system;
-	        config.allowUnfree = true;
+          config.allowUnfree = true;
         };
       };
       overlay-unstable = final: prev: {
@@ -37,27 +45,29 @@
       pkgs = import nixpkgs {
         inherit system;
         config.allowUnfree = true;
-        config.permittedInsecurePackages = [
-          "freeimage-unstable-2021-11-01"
+        overlays = [
+          overlay-stable
+          overlay-unstable
         ];
-        overlays = [overlay-stable overlay-unstable];
       };
-    in {
+    in
+    {
+      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
       homeConfigurations."vael@callisto" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [
           hyprland.homeManagerModules.default
           ./home.nix
           ./callisto.nix
-	      ];
+        ];
       };
       homeConfigurations."vael@ganymede" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [
           hyprland.homeManagerModules.default
-	        ./home.nix
+          ./home.nix
           ./ganymede.nix
-	      ];
+        ];
       };
     };
 }

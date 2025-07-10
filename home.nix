@@ -16,76 +16,103 @@
     gtk.enable = true;
   };
   fonts.fontconfig.enable = true;
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+
+  };
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
-      nerd-fonts.fira-code
-      ardour
-      firefox
-      vscodium
-      godot_4
-      steamcmd
-      discord
-      nautilus qview
-      deluge wgnord 
-      krita
-      lmms vcv-rack
-      hyfetch
-      audacity
-      bitwig-studio
-      blender
-      vlc
-      ghc
-      pavucontrol
-      libreoffice-qt
-      hunspell
-      hunspellDicts.en_US
-      stable.cura stable.openscad-unstable
-      xdg-desktop-portal-gtk
-      xdg-desktop-portal
-      helvum
-      ffmpeg
-      organicmaps
-      killall
-      pstree
-      spotify
-      filezilla
-      protontricks
-      prismlauncher
-      libsForQt5.kpat
-      xautoclick
-      stable.sauerbraten
-      gimp
-      glfw-wayland
-      r2modman
-      waypipe wayvnc
-      osslsigncode
-      bambu-studio orca-slicer
-      btop ncdu file
-      brightnessctl
-      hyprcursor hyprpaper hyprpolkitagent
-      thunderbird
-      dosbox-x
-      # trenchbroom
-      kdenlive
-      dolphin-emu
-      gamemode mangohud
-      trenchbroom
-      lutris
-      itch
-      sweethome3d.application
-      alsa-scarlett-gui
-      # stable.freecad
-      stable.yabridge stable.yabridgectl stable.winetricks stable.wineWowPackages.waylandFull stable.corefonts
-      grim slurp wl-clipboard dunst libsForQt5.qt5ct networkmanagerapplet jq
-      kdePackages.qtstyleplugin-kvantum
-      (catppuccin-kvantum.override {
-        accent = "pink";
-        variant = "macchiato";
-      })
-      hyprpolkitagent
-      # language servers and such
-      nodePackages.nodejs nodePackages.coc-clangd clang-tools nil
+    nerd-fonts.fira-code
+    ardour
+    firefox
+    chromium
+    vscodium
+    godot_4
+    steamcmd
+    discord-canary
+    nautilus
+    qview
+    deluge
+    wgnord
+    krita
+    lmms
+    hyfetch
+    neovide
+    audacity
+    bitwig-studio
+    blender
+    vlc
+    ghc
+    pavucontrol
+    libreoffice-qt
+    hunspell
+    hunspellDicts.en_US
+    stable.openscad-unstable
+    helvum
+    ffmpeg
+    organicmaps
+    killall
+    pstree
+    spotify
+    filezilla
+    protontricks
+    prismlauncher
+    libsForQt5.kpat
+    xautoclick
+    stable.sauerbraten
+    gimp
+    inkscape
+    glfw-wayland
+    r2modman
+    waypipe
+    wayvnc
+    osslsigncode
+    bambu-studio
+    orca-slicer
+    btop
+    ncdu
+    file
+    brightnessctl
+    hyprcursor
+    hyprpaper
+    hyprpolkitagent
+    thunderbird
+    dosbox-x
+    kdePackages.kdenlive
+    # trenchbroom
+    lutris
+    sweethome3d.application
+    alsa-scarlett-gui
+    simple-scan
+    gtklp
+    vinegar
+    # stable.freecad
+    stable.yabridge
+    stable.yabridgectl
+    stable.winetricks
+    stable.wineWowPackages.waylandFull
+    stable.corefonts
+    grim
+    slurp
+    wl-clipboard
+    dunst
+    libsForQt5.qt5ct
+    networkmanagerapplet
+    valgrind
+    jq
+    kdePackages.qtstyleplugin-kvantum
+    (catppuccin-kvantum.override {
+      accent = "pink";
+      variant = "macchiato";
+    })
+    hyprpolkitagent
+    # language servers and such
+    nodePackages.nodejs
+    nodePackages.coc-clangd
+    clang-tools
+    nil
     # (retroarch.override {
     #   cores = with libretro; [
     #     mgba
@@ -95,21 +122,14 @@
     #   ];
     # })
   ];
-  
+
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
   programs.bash = {
-    bashrcExtra = ''
-    set -o vi
-    bind 'set show-mode-in-prompt on'
-    if uwsm check may-start && uwsm select; then
-      exec systemd-cat -t uwsm_start uwsm start default
-    fi
-    '';
+    bashrcExtra = '''';
     enable = true;
   };
 
-  
   programs.rofi = {
     enable = true;
     terminal = "${pkgs.kitty}/bin/kitty";
@@ -117,11 +137,11 @@
     package = pkgs.rofi-wayland;
     theme = ./rofi/themes/catppuccin-macchiato.rasi;
     extraConfig = {
-      display-drun="   Apps ";
-      display-run="   Run ";
-      display-window=" 󰕰  Window";
-      display-Network=" 󰤨  Network";
-      sidebar-mode=true;
+      display-drun = "   Apps ";
+      display-run = "   Run ";
+      display-window = " 󰕰  Window";
+      display-Network = " 󰤨  Network";
+      sidebar-mode = true;
     };
   };
 
@@ -133,8 +153,8 @@
     settings = {
       "$mainMod" = "SUPER";
       exec-once = [
-        "pkill waybar; waybar"
-        "dunst"
+        "uwsm app -- waybar"
+        "uwsm app -- dunst"
         "systemctl --user start hyprpaper.service"
         "systemctl --user start hyprpolkitagent.service"
         "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
@@ -163,7 +183,7 @@
       };
       general = {
         gaps_in = 4;
-        gaps_out = 4; 
+        gaps_out = 4;
         "col.active_border" = "rgba(f5bde6ff) rgba(f5bde6ff) 45deg";
         "col.inactive_border" = "rgba(363a4fff)";
         layout = "master";
@@ -175,10 +195,10 @@
           size = 16;
           passes = 4;
         };
-        inactive_opacity = 0.95;
+        inactive_opacity = 0.85;
         shadow = {
           enabled = true;
-          range = 4;
+          range = 3;
           render_power = 3;
           color = "rgba(1a1a1aff)";
         };
@@ -205,6 +225,7 @@
       };
       master = {
         orientation = "center";
+        slave_count_for_center_master = 1;
         # always_center_master = true;
       };
       gestures = {
@@ -217,7 +238,7 @@
       windowrulev2 = [
         "stayfocused, title:^()$,class:^(steam)$"
         "minsize 1 1, title:^()$,class:^(steam)$"
-       # "stayfocused, class:^(OrcaSlicer)$,title:^()$"
+        # "stayfocused, class:^(OrcaSlicer)$,title:^()$"
         "float, title:^(Picture-in-Picture)$"
         "pin, title:^(Picture-in-Picture)$"
       ];
@@ -225,77 +246,77 @@
         "blur, waybar"
       ];
       bindr = [
-        "$mainMod, Super_L, exec, killall rofi || rofi -show drun -show-icons"
+        "$mainMod, Super_L, exec, killall rofi || uwsm app -- rofi -show drun -show-icons"
       ];
-      bind = [
-        "$mainMod, C, killactive," 
-        "$mainMod, Escape, exit," 
-        "$mainMod, A, exec, nautilus"
-        "$mainMod, F, exec, firefox"
-        "$mainMod, V, togglefloating,"
-        "$mainMod, Space, exec, kitty"
-        "$mainMod, P, pseudo,"
-        "$mainMod, R, togglesplit,"
-        "$mainMod, tab, exec, pkill waybar || waybar"
-        ", Print, exec, grim -g \"$(slurp -d)\" - | wl-copy"
-        "SHIFT, Print, exec, grim - | wl-copy"
+      bind =
+        [
+          "$mainMod, C, killactive,"
+          "$mainMod, Escape, exit,"
+          "$mainMod, A, exec, uwsm app -- nautilus"
+          "$mainMod, F, exec, uwsm app -- firefox"
+          "$mainMod, V, togglefloating,"
+          "$mainMod, Space, exec, uwsm app -- kitty"
+          "$mainMod, P, pseudo,"
+          "$mainMod, R, togglesplit,"
+          "$mainMod, tab, exec, pkill waybar || uwsm app -- waybar"
+          ", Print, exec, uwsm app -- grim -g \"$(slurp -d)\" - | wl-copy"
+          "SHIFT, Print, exec, uwsm app -- grim - | wl-copy"
 
-        # master binds
-        "$mainMod, left, movefocus, l"
-        "$mainMod, right, movefocus, r"
-        "$mainMod, up, movefocus, u"
-        "$mainMod, down, movefocus, d"
-        "$mainMod CTRL, left, movewindow, l"
-        "$mainMod CTRL, right, movewindow, r"
-        "$mainMod CTRL, up, movewindow, u"
-        "$mainMod CTRL, down, movewindow, d"
-        "$mainMod, period, layoutmsg, addmaster"
-        "$mainMod, comma, layoutmsg, removemaster"
-        "$mainMod SHIFT, left, resizeactive, -64 0"
-        "$mainMod SHIFT, right, resizeactive, 64 0"
-        "$mainMod SHIFT, up, resizeactive, 0 -64"
-        "$mainMod SHIFT, down, resizeactive, 0 64"
-        "$mainMod ALT, left,  layoutmsg, orientationleft"
-        "$mainMod ALT, right, layoutmsg, orientationright"
-        "$mainMod ALT, up,    layoutmsg, orientationtop"
-        "$mainMod ALT, down,  layoutmsg, orientationbottom"
+          # master binds
+          "$mainMod, left, movefocus, l"
+          "$mainMod, right, movefocus, r"
+          "$mainMod, up, movefocus, u"
+          "$mainMod, down, movefocus, d"
+          "$mainMod CTRL, left, movewindow, l"
+          "$mainMod CTRL, right, movewindow, r"
+          "$mainMod CTRL, up, movewindow, u"
+          "$mainMod CTRL, down, movewindow, d"
+          "$mainMod, period, layoutmsg, addmaster"
+          "$mainMod, comma, layoutmsg, removemaster"
+          "$mainMod SHIFT, left, resizeactive, -64 0"
+          "$mainMod SHIFT, right, resizeactive, 64 0"
+          "$mainMod SHIFT, up, resizeactive, 0 -64"
+          "$mainMod SHIFT, down, resizeactive, 0 64"
+          "$mainMod ALT, left,  layoutmsg, orientationleft"
+          "$mainMod ALT, right, layoutmsg, orientationright"
+          "$mainMod ALT, up,    layoutmsg, orientationtop"
+          "$mainMod ALT, down,  layoutmsg, orientationbottom"
 
-        "$mainMod, M, movefocus, l"
-        "$mainMod, I, movefocus, r"
-        "$mainMod, E, movefocus, u"
-        "$mainMod, N, movefocus, d"
-        "$mainMod, J, movewindow, l"
-        "$mainMod, Y, movewindow, r"
-        "$mainMod, U, movewindow, u"
-        "$mainMod, L, movewindow, d"
-        "$mainMod, semicolon, layoutmsg, addmaster"
-        "$mainMod, O, layoutmsg, removemaster"
-        "$mainMod, K, resizeactive, -64 0"
-        "$mainMod, period, resizeactive, 64 0"
-        "$mainMod, comma, resizeactive, 0 -64"
-        "$mainMod, H, resizeactive, 0 64"
-        "$mainMod ALT, M,  layoutmsg, orientationleft"
-        "$mainMod ALT, I, layoutmsg, orientationright"
-        "$mainMod ALT, E,    layoutmsg, orientationtop"
-        "$mainMod ALT, N,  layoutmsg, orientationbottom"
-        "$mainMod ALT, space,  layoutmsg, orientationcenter"
-        
+          "$mainMod, M, movefocus, l"
+          "$mainMod, I, movefocus, r"
+          "$mainMod, E, movefocus, u"
+          "$mainMod, N, movefocus, d"
+          "$mainMod, J, movewindow, l"
+          "$mainMod, Y, movewindow, r"
+          "$mainMod, U, movewindow, u"
+          "$mainMod, L, movewindow, d"
+          "$mainMod, semicolon, layoutmsg, addmaster"
+          "$mainMod, O, layoutmsg, removemaster"
+          "$mainMod, K, resizeactive, -64 0"
+          "$mainMod, H, resizeactive, 0 64"
+          "$mainMod ALT, M,  layoutmsg, orientationleft"
+          "$mainMod ALT, I, layoutmsg, orientationright"
+          "$mainMod ALT, E,    layoutmsg, orientationtop"
+          "$mainMod ALT, N,  layoutmsg, orientationbottom"
+          "$mainMod ALT, space,  layoutmsg, orientationcenter"
 
-        "$mainMod, mouse_up, layoutmsg, removemaster"
-        "$mainMod, mouse_down, layoutmsg, addmaster"
-      ] ++ builtins.concatLists (
-        builtins.genList (
-          x:
-            let ws  = toString (if x == 0 then 10 else x);
-                key = toString x;
+          "$mainMod, mouse_up, layoutmsg, removemaster"
+          "$mainMod, mouse_down, layoutmsg, addmaster"
+        ]
+        ++ builtins.concatLists (
+          builtins.genList (
+            x:
+            let
+              ws = toString (if x == 0 then 10 else x);
+              key = toString x;
             in
             [
               "$mainMod, ${key}, workspace, ${ws}"
               "$mainMod SHIFT, ${key}, movetoworkspace, ${ws}"
             ]
           ) 10
-      );
-      
+        );
+
       bindle = [
         ", XF86MonBrightnessUp, exec, brightnessctl s +5%"
         ", XF86MonBrightnessDown, exec, brightnessctl s 5%-"
@@ -319,8 +340,13 @@
     settings = {
       ipc = "on";
       splash = false;
-      preload = ["${./wallpapers/rpnickson.jpg}" "${./wallpapers/atglobe.jpeg}" "${./wallpapers/atlandscape.jpg}"];
-      wallpaper = ", ${./wallpapers/atglobe.jpeg}";
+      preload = [
+        "${./wallpapers/rpnickson.jpg}"
+        "${./wallpapers/atglobe.jpeg}"
+        "${./wallpapers/atlandscape.jpg}"
+        "${./wallpapers/attreehouse.jpg}"
+      ];
+      wallpaper = ", ${./wallpapers/attreehouse.jpg}";
     };
   };
   services.hypridle = {
@@ -338,64 +364,79 @@
   programs.waybar = {
     enable = true;
     style = ''
-    * {
-      font-family: "FiraCode Nerd Font";
-      font-size: 18;
-    }
-    window#waybar {
-      opacity: 0.95;
-      border-radius: 8;
-      background: #24273a;
-      color: #cad3f5;
-    }
-    .modules-right {
-      padding: 4px;
-    }
-    .modules-right > * {
-      background: #181926;
-      border-radius: 6px;
-    }
-    .modules-right > * > * {
-      padding: 0em 1em 0em 0.5em;
-      margin: 2px;
-    }
-    .modules-right > *:first-child{
-      border-radius: 20px 6px 6px 20px;
-    }
-    .modules-right > *:last-child {
-      border-radius: 6px 8px 8px 6px;
-    }
-    #custom-rofi {
-      background: #f5bde6;
-      color: #24273a;
-      border-radius: 8px;
-      border-color: #24273a;
-      border: 4px solid;
-      padding: 0 1em 0 0.5em;
-      font-size: 30;
-    }
-    #workspaces button {
-      color: #cad3f5;
-    }
-    #workspaces button.active, #taskbar button.active {
-      background: #f5bde6;
-      color: #24273a;
-      border-radius: 8px;
-      border-color: #24273a;
-      border: 4px solid;
-    }
+      * {
+        font-family: "FiraCode Nerd Font";
+        font-size: 18;
+      }
+      window#waybar {
+        opacity: 0.85;
+        border-radius: 8;
+        background: #24273a;
+        color: #cad3f5;
+      }
+      .modules-right {
+        padding: 4px;
+      }
+      .modules-right > * {
+        background: #181926;
+        border-radius: 6px;
+      }
+      .modules-right > * > * {
+        padding: 0em 1em 0em 0.5em;
+        margin: 2px;
+      }
+      .modules-right > *:first-child{
+        border-radius: 20px 6px 6px 20px;
+      }
+      .modules-right > *:last-child {
+        border-radius: 6px 8px 8px 6px;
+      }
+      #custom-rofi {
+        background: #f5bde6;
+        color: #24273a;
+        border-radius: 8px;
+        border-color: #24273a;
+        border: 4px solid;
+        padding: 0 1em 0 0.5em;
+        font-size: 30;
+      }
+      #workspaces button {
+        color: #cad3f5;
+      }
+      #workspaces button.active, #taskbar button.active {
+        background: #f5bde6;
+        color: #24273a;
+        border-radius: 8px;
+        border-color: #24273a;
+        border: 4px solid;
+      }
 
     '';
-    settings =  {
+    settings = {
       mainBar = {
         layer = "top";
         position = "bottom";
         margin = "4px";
         height = 48;
         spacing = 2;
-        modules-left = [ "custom/rofi" "hyprland/workspaces" "wlr/taskbar"];
-        modules-center = [ "hyprland/window" "mpris" ];
-        modules-right = [  "bluetooth" "network" "custom/vpn" "wireplumber" "battery" "backlight" "clock"  ];
+        modules-left = [
+          "custom/rofi"
+          "hyprland/workspaces"
+          "wlr/taskbar"
+        ];
+        modules-center = [
+          "hyprland/window"
+          "mpris"
+        ];
+        modules-right = [
+          "bluetooth"
+          "network"
+          "custom/vpn"
+          "wireplumber"
+          "battery"
+          "backlight"
+          "clock"
+        ];
         "hyprland/workspaces" = {
           format = "{icon}";
         };
@@ -405,18 +446,21 @@
         };
         "custom/rofi" = {
           format = "";
-          on-click = "killall rofi || rofi -show drun -show-icons";
+          on-click = "pkill rofi || rofi -show drun -show-icons";
         };
         "custom/vpn" = {
           format = "{icon}";
           tooltip-format = "{}";
-          format-icons = ["" ""];
+          format-icons = [
+            ""
+            ""
+          ];
           exec = ''
-            systemctl list-units openvpn-* --output json | jq --unbuffered --compact-output '{percentage: (if length > 0 then 100 else 0 end), text: (.[].unit // "none") | sub("^openvpn-";"") | sub(".service"; "")}'
+            systemctl is-active --quiet openvpn-p2p.service && echo '{"percentage": 100}' || echo '{"percentage": 0}';
           '';
-          on-click = "pkexec systemctl stop openvpn-p2p.service";
+          on-click = "systemctl is-active --quiet openvpn-p2p.service && systemctl stop openvpn-p2p.service || systemctl start openvpn-p2p.service";
           return-type = "json";
-          interval = 15;
+          interval = 5;
         };
         clock = {
           format = "{:%H.%M}";
@@ -428,13 +472,23 @@
           format = "{icon}";
           tooltip-format = "{node_name} {volume}%";
           format-muted = "󰝟";
-          format-icons = ["" "" ""];
+          format-icons = [
+            ""
+            ""
+            ""
+          ];
           on-click = "pavucontrol";
           on-click-right = "qpwgraph";
         };
         network = {
           on-click = "nm-connection-editor";
-          format-icons = ["󰤯" "󰤯" "󰤟" "󰤢" "󰤨"];
+          format-icons = [
+            "󰤯"
+            "󰤯"
+            "󰤟"
+            "󰤢"
+            "󰤨"
+          ];
           tooltip-format-wifi = "{essid}";
           format-wifi = "{icon}";
           format-disconnected = "󰤮";
@@ -444,7 +498,7 @@
         bluetooth = {
           format-connected = "󰂰";
           format-on = "󰂯";
-          format-off="󰂲";
+          format-off = "󰂲";
           on-click = "blueman-manager";
           tooltip-format-connected = "{device_enumerate}";
           tooltip-device-enumerate-connected = "{device_alias}";
@@ -453,12 +507,32 @@
           format = " {icon}";
           tooltip-format = "{capacity}%";
           format-charging = "{icon}󱐋";
-          format-icons = ["󰂃" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󱟢"];
+          format-icons = [
+            "󰂃"
+            "󰁺"
+            "󰁻"
+            "󰁼"
+            "󰁽"
+            "󰁾"
+            "󰁿"
+            "󰂀"
+            "󰂁"
+            "󰂂"
+            "󱟢"
+          ];
         };
         backlight = {
           format = "󰍹";
-          tooltip-format="{percent}%";
-          format-icons = ["󰃜" "󰃛" "󰃚"  "󰃞" "󰃟" "󰃝" "󰃠"];
+          tooltip-format = "{percent}%";
+          format-icons = [
+            "󰃜"
+            "󰃛"
+            "󰃚"
+            "󰃞"
+            "󰃟"
+            "󰃝"
+            "󰃠"
+          ];
         };
       };
     };
@@ -477,7 +551,7 @@
       name = "FiraCode Nerd Font Mono";
     };
     extraConfig = ''
-    confirm_os_window_close 0
+      confirm_os_window_close 0
     '';
   };
   programs.neovim = {
@@ -485,7 +559,7 @@
     viAlias = true;
     vimAlias = true;
     defaultEditor = true;
-    plugins  = with pkgs.vimPlugins; [
+    plugins = with pkgs.vimPlugins; [
       nvim-lspconfig
       nvim-treesitter.withAllGrammars
       nvim-web-devicons
@@ -505,6 +579,20 @@
       colorscheme catppuccin-macchiato
       inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
     '';
+    extraLuaConfig = ''
+      local port = os.getenv('GDScript_Port') or 6005
+      local cmd = vim.lsp.rpc.connect('127.0.0.1', port)
+      local pipe = '/tmp/godot.pipe' 
+
+      vim.lsp.start({
+        name = 'Godot',
+        cmd = cmd,
+        root_dir = vim.fs.dirname(vim.fs.find({ 'project.godot', '.git' }, { upward = true })[1]),
+        on_attach = function(client, bufnr)
+          vim.api.nvim_command('echo serverstart("' .. pipe .. '")')
+        end
+      })
+    '';
   };
   gtk = {
     enable = true;
@@ -517,13 +605,13 @@
         variant = "macchiato";
       };
     };
-    iconTheme = {
-      package = pkgs.catppuccin-papirus-folders.override {
-        flavor = "macchiato";
-        accent = "pink";
-      };
-      name = "Papirus-Dark";
-    };
+    #iconTheme = {
+    #  package = pkgs.catppuccin-papirus-folders.override {
+    #    flavor = "macchiato";
+    #    accent = "pink";
+    #  };
+    #  name = "Papirus-Dark";
+    #};
   };
   # programs.sm64ex.baserom = /home/vael/roms/n64/baserom.us.z64;
-} 
+}
