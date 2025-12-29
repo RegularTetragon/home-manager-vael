@@ -7,7 +7,10 @@
       #      "eDP-1,1920x1080@60,0x0,1,mirror,DP-3"
       #      "DP-3,1920x1080@50,0x0,1"
     ];
-    input.kb_variant = "colemak_dh";
-    input.kb_options = "caps:swapescape";
+    "device" = [{
+      name = "at-translated-set-2-keyboard";
+      kb_options = "caps:swapescape";
+      kb_variant = "colemak_dh";
+    }];
   };
 }

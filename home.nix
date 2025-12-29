@@ -36,7 +36,6 @@
     deluge
     wgnord
     krita
-    lmms
     hyfetch
     neovide
     audacity
@@ -44,6 +43,9 @@
     blender
     vlc
     ghc
+    cardinal
+    gparted
+    supercollider-with-plugins
     pavucontrol
     libreoffice-qt
     hunspell
@@ -51,24 +53,25 @@
     stable.openscad-unstable
     helvum
     ffmpeg
+    gnome-software
     organicmaps
     killall
     pstree
     spotify
+    feh
     filezilla
     protontricks
     prismlauncher
-    libsForQt5.kpat
-    xautoclick
+    kdePackages.kpat
     stable.sauerbraten
     gimp
     inkscape
-    glfw-wayland
+    glfw
     r2modman
     waypipe
     wayvnc
     osslsigncode
-    bambu-studio
+    stable.bambu-studio
     orca-slicer
     btop
     ncdu
@@ -87,6 +90,7 @@
     simple-scan
     gtklp
     vinegar
+    pixelorama
     # stable.freecad
     stable.yabridge
     stable.yabridgectl
@@ -96,7 +100,6 @@
     grim
     slurp
     wl-clipboard
-    dunst
     libsForQt5.qt5ct
     networkmanagerapplet
     valgrind
@@ -124,16 +127,25 @@
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
+  programs.nushell = {
+    enable = true;
+    configFile = {
+      text = ''
+      $env.config.show_banner = false
+      def H [] {Hyprland}
+      '';
+    };
+  };
   programs.bash = {
     bashrcExtra = '''';
     enable = true;
   };
 
+
   programs.rofi = {
     enable = true;
     terminal = "${pkgs.kitty}/bin/kitty";
     font = "FiraCode Nerd Font 18";
-    package = pkgs.rofi-wayland;
     theme = ./rofi/themes/catppuccin-macchiato.rasi;
     extraConfig = {
       display-drun = "   Apps ";
@@ -169,13 +181,15 @@
         "WINEPREFIX=${config.home.homeDirectory}/.wine/winecfg"
       ];
       input = {
+        resolve_binds_by_sym = true;
         kb_layout = "us";
         # follow_mouse = 1;
         # mouse_refocus = 1;
+        accel_profile = "flat";
         touchpad = {
           natural_scroll = "no";
         };
-        sensitivity = 0;
+        sensitivity = 0.5;
       };
       "input:touchpad" = {
         disable_while_typing = false;
@@ -227,13 +241,17 @@
         slave_count_for_center_master = 1;
         # always_center_master = true;
       };
-      gestures = {
-        workspace_swipe = "on";
-      };
-      device = {
+      gesture = [
+        "4, horizontal, workspace"
+        "3, vertical, move"
+        "3, horizontal, resize"
+        "4, up, fullscreen"
+        "4, down, fullscreen, minimize"
+      ];
+      device = [{
         name = "hid-256c:006d-pen";
         output = "HDMI-A-2";
-      };
+      }];
       windowrulev2 = [
         "stayfocused, title:^()$,class:^(steam)$"
         "minsize 1 1, title:^()$,class:^(steam)$"
@@ -306,12 +324,14 @@
           builtins.genList (
             x:
             let
-              ws = toString (if x == 0 then 10 else x);
+              ws = if x == 0 then 10 else x;
               key = toString x;
             in
             [
-              "$mainMod, ${key}, workspace, ${ws}"
-              "$mainMod SHIFT, ${key}, movetoworkspace, ${ws}"
+              "$mainMod, ${key}, workspace, ${toString ws}"
+              "$mainMod SHIFT, ${key}, movetoworkspace, ${toString ws}"
+              "$mainMod CTRL, ${key}, workspace, ${toString (ws + 10)}"
+              "$mainMod CTRL SHIFT, ${key}, movetoworkspace, ${toString(ws + 10)}"
             ]
           ) 10
         );
@@ -333,6 +353,30 @@
         " $mainMod, mouse:273, resizewindow"
       ];
     };
+  };
+  services.dunst = {
+    enable = true;
+    settings = builtins.fromTOML ''
+    [global]
+    font = "FiraCode Nerd Font 14"
+    frame_color = "#f5bde6"
+    separator_color = "frame"
+    highlight = "#f5bde6"
+    corner_radius = 8
+
+    [urgency_low]
+    background = "#24273a"
+    foreground = "#cad3f5"
+
+    [urgency_normal]
+    background = "#24273a"
+    foreground = "#cad3f5"
+
+    [urgency_critical]
+    background = "#24273a"
+    foreground = "#cad3f5"
+    frame_color = "#f5a97f"
+    '';
   };
   services.hyprpaper = {
     enable = true;
@@ -579,18 +623,29 @@
       inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
     '';
     extraLuaConfig = ''
-      local port = os.getenv('GDScript_Port') or 6005
-      local cmd = vim.lsp.rpc.connect('127.0.0.1', port)
-      local pipe = '/tmp/godot.pipe' 
+    -- paths to check for project.godot file
+    local paths_to_check = {'/', '/../'}
+    local is_godot_project = false
+    local godot_project_path = ""
+    local cwd = vim.fn.getcwd()
+    local telescope = require('telescope.builtin')
+    vim.keymap.set('n', '<C-p>', telescope.find_files, {})
 
-      vim.lsp.start({
-        name = 'Godot',
-        cmd = cmd,
-        root_dir = vim.fs.dirname(vim.fs.find({ 'project.godot', '.git' }, { upward = true })[1]),
-        on_attach = function(client, bufnr)
-          vim.api.nvim_command('echo serverstart("' .. pipe .. '")')
+    -- iterate over paths and check
+    for key, value in pairs(paths_to_check) do
+        if vim.uv.fs_stat(cwd .. value .. 'project.godot') then
+            is_godot_project = true
+            godot_project_path = cwd .. value
+            break
         end
-      })
+    end
+
+    -- check if server is already running in godot project path
+    local is_server_running = vim.uv.fs_stat(godot_project_path .. '/server.pipe')
+    -- start server, if not already running
+    if is_godot_project and not is_server_running then
+        vim.fn.serverstart(godot_project_path .. '/server.pipe')
+    end
     '';
   };
   gtk = {
