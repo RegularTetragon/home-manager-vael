@@ -204,9 +204,9 @@
       decoration = {
         rounding = 8;
         blur = {
-          enabled = true;
-          size = 16;
-          passes = 4;
+           enabled = true;
+           size = 16;
+           passes = 4;
         };
         inactive_opacity = 0.85;
         shadow = {
@@ -215,9 +215,6 @@
           render_power = 3;
           color = "rgba(1a1a1aff)";
         };
-      };
-      experimental = {
-        xx_color_management_v4 = true;
       };
       cursor = {
         no_hardware_cursors = 0;
@@ -260,7 +257,6 @@
         "pin, title:^(Picture-in-Picture)$"
       ];
       layerrule = [
-        "blur, waybar"
       ];
       bindr = [
         "$mainMod, Super_L, exec, killall rofi || uwsm app -- rofi -show drun -show-icons"
