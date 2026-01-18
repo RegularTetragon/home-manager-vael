@@ -11,7 +11,7 @@
   home.pointerCursor = {
     package = pkgs.catppuccin-cursors.macchiatoPink;
     name = "catppuccin-macchiato-pink-cursors";
-    size = 32;
+    size = 16;
     x11.enable = true;
     gtk.enable = true;
   };
@@ -195,7 +195,7 @@
         disable_while_typing = false;
       };
       general = {
-        gaps_in = 4;
+        gaps_in = 2;
         gaps_out = 4;
         "col.active_border" = "rgba(f5bde6ff) rgba(f5bde6ff) 45deg";
         "col.inactive_border" = "rgba(363a4fff)";
@@ -612,16 +612,16 @@
       coc-nvim
       coc-clangd
     ];
-    extraConfig = ''
-      set nowrap
-      set number
-      set tabstop=2
-      set shiftwidth=2
-      set expandtab
-      set softtabstop=2
-      colorscheme catppuccin-macchiato
-      inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-    '';
+#   extraConfig = ''
+#     set nowrap
+#     set number
+#     set tabstop=2
+#     set shiftwidth=2
+#     set expandtab
+#     set softtabstop=2
+#     colorscheme catppuccin-macchiato
+#     inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+#   '';
     extraLuaConfig = ''
     -- paths to check for project.godot file
     local paths_to_check = {'/', '/../'}
