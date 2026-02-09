@@ -3,11 +3,11 @@
 
   inputs = {
     # Specify the source of Home Manager and Nixpkgs.
-    nixpkgs.url = "nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "nixpkgs/nixos-24.11";
+    nixpkgs.url = "nixpkgs/nixos-25.11";
+    nixpkgs-stable.url = "nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "nixpkgs/nixos-unstable";
     home-manager = {
-      url = "github:nix-community/home-manager";
+      url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     hyprland = {
@@ -50,23 +50,39 @@
           overlay-unstable
         ];
       };
+      hypr = {
+          wayland.windowManager.hyprland = {
+            enable = true;
+            # set the flake package
+            package = hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+            portalPackage = hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+          };
+          services.hyprpaper = {
+            enable = true;
+            package = pkgs.unstable.hyprpaper;
+          };
+          services.hyprpolkitagent = {
+            enable = true;
+            package = pkgs.unstable.hyprpolkitagent;
+          };
+        };
     in
     {
       formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
       homeConfigurations."vael@callisto" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [
-          hyprland.homeManagerModules.default
           ./home.nix
           ./callisto.nix
+          hypr
         ];
       };
       homeConfigurations."vael@ganymede" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [
-          hyprland.homeManagerModules.default
           ./home.nix
           ./ganymede.nix
+          hypr
         ];
       };
     };

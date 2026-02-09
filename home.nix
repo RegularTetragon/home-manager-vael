@@ -2,7 +2,7 @@
 
 {
   # Home Manager needs a bit of information about you and the paths it should
-  # manage.
+  # manage./home/vael
   home.username = "vael";
   home.homeDirectory = "/home/vael";
   home.stateVersion = "23.05";
@@ -30,7 +30,7 @@
     vscodium
     godot_4
     steamcmd
-    discord-canary
+    discord
     nautilus
     qview
     deluge
@@ -126,6 +126,10 @@
   ];
 
   # Let Home Manager install and manage itself.
+  programs.git = {
+    enable = true;
+    lfs.enable = true;
+  };
   programs.home-manager.enable = true;
   programs.nushell = {
     enable = true;
@@ -157,10 +161,8 @@
   };
 
   wayland.windowManager.hyprland = {
-    enable = true;
+    # see flake
     systemd.enable = false;
-    package = null;
-    portalPackage = null;
     settings = {
       "$mainMod" = "SUPER";
       exec-once = [
@@ -249,12 +251,11 @@
         name = "hid-256c:006d-pen";
         output = "HDMI-A-2";
       }];
-      windowrulev2 = [
-        "stayfocused, title:^()$,class:^(steam)$"
-        "minsize 1 1, title:^()$,class:^(steam)$"
-        # "stayfocused, class:^(OrcaSlicer)$,title:^()$"
-        "float, title:^(Picture-in-Picture)$"
-        "pin, title:^(Picture-in-Picture)$"
+      windowrule = [
+       #"stayfocused, title:^()$,class:^(steam)$"
+       #"minsize 1 1, title:^()$,class:^(steam)$"
+       ## "stayfocused, class:^(OrcaSlicer)$,title:^()$"
+       "match:title ^(Picture-in-Picture), float on, pin on"
       ];
       layerrule = [
       ];
@@ -263,14 +264,18 @@
       ];
       bind =
         [
-          "$mainMod, C, killactive,"
+          ", mouse:275, pass, class:^(discord)$"
+          "$mainMod, Q, killactive,"
+          "$mainMod, C, sendshortcut, CTRL, C"
+          "$mainMod, V, sendshortcut, CTRL, V"
+          "$mainMod, X, sendshortcut, CTRL, X"
           "$mainMod, Escape, exit,"
-          "$mainMod, A, exec, uwsm app -- nautilus"
-          "$mainMod, F, exec, uwsm app -- firefox"
-          "$mainMod, V, togglefloating,"
+          "$mainMod, A, exec, nautilus -w"
+          "$mainMod, R, exec, uwsm app -- firefox"
+          "$mainMod, F, togglefloating,"
           "$mainMod, Space, exec, uwsm app -- kitty"
-          "$mainMod, P, pseudo,"
-          "$mainMod, R, togglesplit,"
+          "$mainMod, T, pseudo,"
+          "$mainMod, S, togglesplit,"
           "$mainMod, tab, exec, pkill waybar || uwsm app -- waybar"
           ", Print, exec, uwsm app -- grim -g \"$(slurp -d)\" - | wl-copy"
           "SHIFT, Print, exec, uwsm app -- grim - | wl-copy"
@@ -350,6 +355,12 @@
       ];
     };
   };
+  services.udiskie = {
+    enable = true;
+  };
+  services.easyeffects = {
+    enable = true;
+  };
   services.dunst = {
     enable = true;
     settings = builtins.fromTOML ''
@@ -375,7 +386,7 @@
     '';
   };
   services.hyprpaper = {
-    enable = true;
+    # see flake
     settings = {
       ipc = "on";
       splash = false;
@@ -385,7 +396,10 @@
         "${./wallpapers/atlandscape.jpg}"
         "${./wallpapers/attreehouse.jpg}"
       ];
-      wallpaper = ", ${./wallpapers/attreehouse.jpg}";
+      wallpaper = [{
+      	monitor = "";
+      	path = "${./wallpapers/attreehouse.jpg}";
+      }];
     };
   };
   services.hypridle = {
@@ -408,7 +422,7 @@
         font-size: 18;
       }
       window#waybar {
-        opacity: 0.85;
+        opacity: 1.0;
         border-radius: 8;
         background: #24273a;
         color: #cad3f5;
@@ -610,6 +624,13 @@
       coc-clangd
     ];
     extraLuaConfig = ''
+    vim.o.wrap = false
+    vim.o.number = true
+    vim.o.tabstop=2
+    vim.o.shiftwidth=2
+    vim.o.expandtab = true
+    vim.o.softtabstop=2
+    vim.cmd.colorscheme "catppuccin-macchiato"
     -- paths to check for project.godot file
     local paths_to_check = {'/', '/../'}
     local is_godot_project = false
@@ -688,13 +709,13 @@
         variant = "macchiato";
       };
     };
-    #iconTheme = {
-    #  package = pkgs.catppuccin-papirus-folders.override {
-    #    flavor = "macchiato";
-    #    accent = "pink";
-    #  };
-    #  name = "Papirus-Dark";
-    #};
+    iconTheme = {
+      package = pkgs.catppuccin-papirus-folders.override {
+        flavor = "macchiato";
+        accent = "pink";
+      };
+      name = "Papirus-Dark";
+    };
   };
   # programs.sm64ex.baserom = /home/vael/roms/n64/baserom.us.z64;
 }
