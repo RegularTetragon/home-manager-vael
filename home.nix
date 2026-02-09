@@ -602,22 +602,13 @@
       nvim-lspconfig
       nvim-treesitter.withAllGrammars
       nvim-web-devicons
+      nvim-dap
       catppuccin-nvim
       telescope-nvim
       telescope-coc-nvim
       coc-nvim
       coc-clangd
     ];
-#   extraConfig = ''
-#     set nowrap
-#     set number
-#     set tabstop=2
-#     set shiftwidth=2
-#     set expandtab
-#     set softtabstop=2
-#     colorscheme catppuccin-macchiato
-#     inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-#   '';
     extraLuaConfig = ''
     -- paths to check for project.godot file
     local paths_to_check = {'/', '/../'}
@@ -625,7 +616,46 @@
     local godot_project_path = ""
     local cwd = vim.fn.getcwd()
     local telescope = require('telescope.builtin')
+
+    require("catppuccin").setup({
+        flavour = "macchiato"
+    })
+
     vim.keymap.set('n', '<C-p>', telescope.find_files, {})
+    vim.cmd.colorscheme "catppuccin"
+    vim.opt.wrap = false        
+    vim.opt.number = true
+    vim.opt.expandtab = true
+    vim.opt.tabstop = 2
+    vim.opt.shiftwidth = 2
+
+    -- define functions only for Godot projects
+    if is_godot_project then
+        -- write breakpoint to new line
+        vim.api.nvim_create_user_command('GodotBreakpoint', function()
+            vim.cmd('normal! obreakpoint' )
+            vim.cmd('write' )
+        end, {})
+        vim.keymap.set('n', '<leader>b', ':GodotBreakpoint<CR>')
+
+        -- delete all breakpoints in current file
+        vim.api.nvim_create_user_command('GodotDeleteBreakpoints', function()
+            vim.cmd('g/breakpoint/d')
+        end, {})
+        vim.keymap.set('n', '<leader>BD', ':GodotDeleteBreakpoints<CR>')
+
+        -- search all breakpoints in project
+        vim.api.nvim_create_user_command('GodotFindBreakpoints', function()
+            vim.cmd(':grep breakpoint | copen')
+        end, {})
+        vim.keymap.set('n', '<leader>BF', ':GodotFindBreakpoints<CR>')
+
+        -- append "# TRANSLATORS: " to current line
+        vim.api.nvim_create_user_command('GodotTranslators', function(opts)
+            vim.cmd('normal! A # TRANSLATORS: ')
+        end, {})
+    end
+
 
     -- iterate over paths and check
     for key, value in pairs(paths_to_check) do
@@ -637,10 +667,13 @@
     end
 
     -- check if server is already running in godot project path
-    local is_server_running = vim.uv.fs_stat(godot_project_path .. '/server.pipe')
+    -- local pipe_path = "/tmp/godot-nvim-" .. vim.fn.fnamemodify(godot_project_path, ':h:t') .. "-server.pipe"
+    local pipe_path = godot_project_path .. "server.pipe"
+    local is_server_running = vim.uv.fs_stat(pipe_path)
+    
     -- start server, if not already running
     if is_godot_project and not is_server_running then
-        vim.fn.serverstart(godot_project_path .. '/server.pipe')
+        vim.fn.serverstart(pipe_path)
     end
     '';
   };
