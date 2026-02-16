@@ -30,7 +30,7 @@
     vscodium
     godot_4
     steamcmd
-    discord
+    unstable.discord
     nautilus
     qview
     deluge
@@ -423,8 +423,8 @@
       }
       window#waybar {
         opacity: 1.0;
-        border-radius: 8;
-        background: #24273a;
+        border-radius: 8 8 0 0;
+        background: alpha(#24273a, 0.7);
         color: #cad3f5;
       }
       .modules-right {
@@ -469,7 +469,7 @@
       mainBar = {
         layer = "top";
         position = "bottom";
-        margin = "4px";
+        margin = "0px 4px 0px 4px";
         height = 48;
         spacing = 2;
         modules-left = [
@@ -637,11 +637,12 @@
     local godot_project_path = ""
     local cwd = vim.fn.getcwd()
     local telescope = require('telescope.builtin')
+    local dap = require('dap')
 
     require("catppuccin").setup({
         flavour = "macchiato"
     })
-
+    vim.g.mapleader = ","
     vim.keymap.set('n', '<C-p>', telescope.find_files, {})
     vim.cmd.colorscheme "catppuccin"
     vim.opt.wrap = false        
@@ -649,34 +650,6 @@
     vim.opt.expandtab = true
     vim.opt.tabstop = 2
     vim.opt.shiftwidth = 2
-
-    -- define functions only for Godot projects
-    if is_godot_project then
-        -- write breakpoint to new line
-        vim.api.nvim_create_user_command('GodotBreakpoint', function()
-            vim.cmd('normal! obreakpoint' )
-            vim.cmd('write' )
-        end, {})
-        vim.keymap.set('n', '<leader>b', ':GodotBreakpoint<CR>')
-
-        -- delete all breakpoints in current file
-        vim.api.nvim_create_user_command('GodotDeleteBreakpoints', function()
-            vim.cmd('g/breakpoint/d')
-        end, {})
-        vim.keymap.set('n', '<leader>BD', ':GodotDeleteBreakpoints<CR>')
-
-        -- search all breakpoints in project
-        vim.api.nvim_create_user_command('GodotFindBreakpoints', function()
-            vim.cmd(':grep breakpoint | copen')
-        end, {})
-        vim.keymap.set('n', '<leader>BF', ':GodotFindBreakpoints<CR>')
-
-        -- append "# TRANSLATORS: " to current line
-        vim.api.nvim_create_user_command('GodotTranslators', function(opts)
-            vim.cmd('normal! A # TRANSLATORS: ')
-        end, {})
-    end
-
 
     -- iterate over paths and check
     for key, value in pairs(paths_to_check) do
@@ -686,6 +659,44 @@
             break
         end
     end
+    dap.configurations.gdscript = {
+      {
+        type = "godot",
+        request = "launch",
+        name = "Launch Scene",
+        project = "''${workspaceFolder}"
+      }
+    }
+
+    dap.adapters.godot = {
+      type = "server",
+      host = "127.0.0.1",
+      port = 6006
+    }
+    vim.keymap.set('n', '<F5>', function() require('dap').continue() end)
+    vim.keymap.set('n', '<F10>', function() require('dap').step_over() end)
+    vim.keymap.set('n', '<F11>', function() require('dap').step_into() end)
+    vim.keymap.set('n', '<F12>', function() require('dap').step_out() end)
+    vim.keymap.set('n', '<Leader>b', function() require('dap').toggle_breakpoint() end)
+    vim.keymap.set('n', '<Leader>B', function() require('dap').set_breakpoint() end)
+    vim.keymap.set('n', '<Leader>lp', function() require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: ')) end)
+    vim.keymap.set('n', '<Leader>dr', function() require('dap').repl.open() end)
+    vim.keymap.set('n', '<Leader>dl', function() require('dap').run_last() end)
+    vim.keymap.set({'n', 'v'}, '<Leader>dh', function()
+      require('dap.ui.widgets').hover()
+    end)
+    vim.keymap.set({'n', 'v'}, '<Leader>dp', function()
+      require('dap.ui.widgets').preview()
+    end)
+    vim.keymap.set('n', '<Leader>df', function()
+      local widgets = require('dap.ui.widgets')
+      widgets.centered_float(widgets.frames)
+    end)
+    vim.keymap.set('n', '<Leader>ds', function()
+      local widgets = require('dap.ui.widgets')
+      widgets.centered_float(widgets.scopes)
+    end)
+
 
     -- check if server is already running in godot project path
     -- local pipe_path = "/tmp/godot-nvim-" .. vim.fn.fnamemodify(godot_project_path, ':h:t') .. "-server.pipe"
