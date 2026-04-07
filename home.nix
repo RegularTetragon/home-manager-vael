@@ -28,7 +28,7 @@
     firefox
     chromium
     vscodium
-    godot_4
+    unstable.godot
     steamcmd
     unstable.discord
     nautilus
@@ -40,6 +40,7 @@
     neovide
     audacity
     bitwig-studio
+    rnnoise-plugin
     blender
     vlc
     ghc
@@ -51,7 +52,7 @@
     hunspell
     hunspellDicts.en_US
     stable.openscad-unstable
-    helvum
+    qpwgraph
     ffmpeg
     gnome-software
     organicmaps
@@ -111,8 +112,8 @@
     })
     hyprpolkitagent
     # language servers and such
-    nodePackages.nodejs
-    nodePackages.coc-clangd
+    #nodePackages.nodejs
+    #nodePackages.coc-clangd
     clang-tools
     nil
     # (retroarch.override {
@@ -127,6 +128,7 @@
 
   # Let Home Manager install and manage itself.
   programs.git = {
+    signing.format = "openpgp";
     enable = true;
     lfs.enable = true;
   };
@@ -196,6 +198,10 @@
       "input:touchpad" = {
         disable_while_typing = false;
       };
+      "input:tablet" = {
+        output = "HDMI-A-1";
+       # region_position = "0 1080";
+      };
       general = {
         gaps_in = 2;
         gaps_out = 4;
@@ -235,6 +241,9 @@
         pseudotile = "yes";
         preserve_split = true;
       };
+      scrolling = {
+        follow_focus = false;
+      };
       master = {
         orientation = "center";
         slave_count_for_center_master = 1;
@@ -249,7 +258,8 @@
       ];
       device = [{
         name = "hid-256c:006d-pen";
-        output = "HDMI-A-2";
+        region_position = "0 0";
+        output = "HDMI-A-1";
       }];
       windowrule = [
        #"stayfocused, title:^()$,class:^(steam)$"
@@ -275,7 +285,6 @@
           "$mainMod, F, togglefloating,"
           "$mainMod, Space, exec, uwsm app -- kitty"
           "$mainMod, T, pseudo,"
-          "$mainMod, S, togglesplit,"
           "$mainMod, tab, exec, pkill waybar || uwsm app -- waybar"
           ", Print, exec, uwsm app -- grim -g \"$(slurp -d)\" - | wl-copy"
           "SHIFT, Print, exec, uwsm app -- grim - | wl-copy"
@@ -319,7 +328,9 @@
           "$mainMod ALT, space,  layoutmsg, orientationcenter"
 
           "$mainMod, mouse_up, layoutmsg, removemaster"
+          #"$mainMod, mouse_up, layoutmsg, move +col"
           "$mainMod, mouse_down, layoutmsg, addmaster"
+          #"$mainMod, mouse_down, layoutmsg, move -col"
         ]
         ++ builtins.concatLists (
           builtins.genList (
@@ -620,16 +631,10 @@
       catppuccin-nvim
       telescope-nvim
       telescope-coc-nvim
-      coc-nvim
-      coc-clangd
     ];
-    extraLuaConfig = ''
-    vim.o.wrap = false
-    vim.o.number = true
-    vim.o.tabstop=2
-    vim.o.shiftwidth=2
-    vim.o.expandtab = true
-    vim.o.softtabstop=2
+    withRuby = true;
+    withPython3 = true;
+    initLua = ''
     vim.cmd.colorscheme "catppuccin-macchiato"
     -- paths to check for project.godot file
     local paths_to_check = {'/', '/../'}
