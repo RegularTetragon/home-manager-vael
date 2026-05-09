@@ -66,6 +66,8 @@
     kdePackages.kpat
     stable.sauerbraten
     gimp
+    bolt-launcher
+    runelite
     inkscape
     glfw
     r2modman
@@ -85,7 +87,6 @@
     dosbox-x
     kdePackages.kdenlive
     # trenchbroom
-    lutris
     sweethome3d.application
     alsa-scarlett-gui
     simple-scan
@@ -262,12 +263,20 @@
         output = "HDMI-A-1";
       }];
       windowrule = [
+       "match:class ^$,match:title ^$,match:xwayland 1,match:float 1,match:fullscreen 0,match:pin 0, no_focus on"
        #"stayfocused, title:^()$,class:^(steam)$"
        #"minsize 1 1, title:^()$,class:^(steam)$"
        ## "stayfocused, class:^(OrcaSlicer)$,title:^()$"
        "match:title ^(Picture-in-Picture), float on, pin on"
       ];
       layerrule = [
+      ];
+      bindki = [
+        ", minus, razer-razer-naga-v2-hyperspeed-1, pass, class:^discord$"
+        ", equal, razer-razer-naga-v2-hyperspeed-1, sendkeystate, F13, down, class:^discord$"
+      ];
+      bindkir = [
+        ", equal, razer-razer-naga-v2-hyperspeed-1, sendkeystate, F13, up, class:^discord$"
       ];
       bindr = [
         "$mainMod, Super_L, exec, killall rofi || uwsm app -- rofi -show drun -show-icons"
