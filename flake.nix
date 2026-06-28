@@ -4,19 +4,13 @@
   inputs = {
     # Specify the source of Home Manager and Nixpkgs.
     nixpkgs.url = "nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "nixpkgs/nixos-25.11";
+    nixpkgs-stable.url = "nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "nixpkgs/nixos-unstable";
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    hyprland = {
-      type = "git";
-      url = "https://github.com/hyprwm/Hyprland";
-      ref = "main";
-      # rev = "f7fb7e7e49e3b47f9b72c55fbf2d093e1a7981f5";
-      submodules = true;
-    };
+    niri.url = "github:sodiboo/niri-flake";
   };
 
   outputs =
@@ -25,7 +19,7 @@
       nixpkgs-stable,
       nixpkgs-unstable,
       home-manager,
-      hyprland,
+      niri,
       ...
     }:
     let
@@ -48,24 +42,9 @@
         overlays = [
           overlay-stable
           overlay-unstable
+          niri.overlays.niri
         ];
       };
-      hypr = {
-          wayland.windowManager.hyprland = {
-            enable = true;
-            # set the flake package
-            package = hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
-            portalPackage = hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
-          };
-          services.hyprpaper = {
-            enable = true;
-            package = pkgs.unstable.hyprpaper;
-          };
-          services.hyprpolkitagent = {
-            enable = true;
-            package = pkgs.unstable.hyprpolkitagent;
-          };
-        };
     in
     {
       formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
@@ -74,7 +53,7 @@
         modules = [
           ./home.nix
           ./callisto.nix
-          hypr
+          niri.homeModules.niri
         ];
       };
       homeConfigurations."vael@ganymede" = home-manager.lib.homeManagerConfiguration {
@@ -82,7 +61,7 @@
         modules = [
           ./home.nix
           ./ganymede.nix
-          hypr
+          niri.homeModules.niri
         ];
       };
     };

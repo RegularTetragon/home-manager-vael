@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -17,7 +22,11 @@
   };
   fonts.fontconfig.enable = true;
   xdg.portal = {
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    enable = true;
+    extraPortals = [
+      pkgs.xdg-desktop-portal-gtk
+      pkgs.xdg-desktop-portal-gnome
+    ];
 
   };
   # The home.packages option allows you to install Nix packages into your
@@ -40,6 +49,7 @@
     neovide
     audacity
     bitwig-studio
+    xwayland-satellite
     rnnoise-plugin
     blender
     vlc
@@ -59,6 +69,7 @@
     killall
     pstree
     spotify
+    swaybg
     feh
     filezilla
     protontricks
@@ -74,7 +85,6 @@
     waypipe
     wayvnc
     osslsigncode
-    stable.bambu-studio
     orca-slicer
     btop
     ncdu
@@ -97,7 +107,6 @@
     stable.yabridge
     stable.yabridgectl
     stable.winetricks
-    stable.wineWowPackages.waylandFull
     stable.corefonts
     grim
     slurp
@@ -113,8 +122,6 @@
     })
     hyprpolkitagent
     # language servers and such
-    #nodePackages.nodejs
-    #nodePackages.coc-clangd
     clang-tools
     nil
     # (retroarch.override {
@@ -138,17 +145,19 @@
     enable = true;
     configFile = {
       text = ''
-      $env.config.show_banner = false
-      def H [] {Hyprland}
+        $env.config.show_banner = false
+        def H [] {Hyprland}
       '';
     };
   };
   programs.bash = {
-    bashrcExtra = '''';
+    bashrcExtra = "";
     enable = true;
   };
-
-
+  programs.fuzzel = {
+    enable = true;
+    settings = { };
+  };
   programs.rofi = {
     enable = true;
     terminal = "${pkgs.kitty}/bin/kitty";
@@ -163,216 +172,126 @@
     };
   };
 
-  wayland.windowManager.hyprland = {
-    # see flake
-    systemd.enable = false;
+  programs.niri = {
+    enable = true;
+    package = pkgs.niri-unstable;
     settings = {
-      "$mainMod" = "SUPER";
-      exec-once = [
-        "uwsm app -- waybar"
-        "uwsm app -- dunst"
-        "systemctl --user start hyprpaper.service"
-        "systemctl --user start hyprpolkitagent.service"
-        "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
+      prefer-no-csd = true;
+      overview = {
+        backdrop-color = "#181926";
+      };
+      xwayland-satellite = {
+        enable = true;
+        path = lib.getExe pkgs.xwayland-satellite-unstable;
+      };
+
+      spawn-at-startup = [
+        { argv = [ "waybar" ]; }
+        {
+          argv = [
+            "swaybg"
+            "--image"
+            ".config/home-manager/wallpapers/attreehouse.jpg"
+          ];
+        }
+        { argv = [ "dunst" ]; }
       ];
-      env = [
-        "QT_QPA_PLATFORMTHEME,qt5ct"
-        "QT_QPA_PLATFORM,wayland"
-        "QT_WAYLAND_DISABLE_WINDOWDECORATION,1"
-        "QT_AUTO_SCREEN_SCALE_FACTOR,1"
-        "QT_STYLE_OVERRIDE,kvantum"
-        "HYPRCURSOR_THEME,catppuccin-macchiato-pink-cursors"
-        "HYPRCURSOR_SIZE,32"
-        "WINEPREFIX=${config.home.homeDirectory}/.wine/winecfg"
+      window-rules = [
+        {
+          geometry-corner-radius = {
+            bottom-left = 8.0;
+            bottom-right = 8.0;
+            top-left = 8.0;
+            top-right = 8.0;
+          };
+          clip-to-geometry = true;
+        }
       ];
       input = {
-        resolve_binds_by_sym = true;
-        kb_layout = "us";
-        # follow_mouse = 1;
-        # mouse_refocus = 1;
-        accel_profile = "flat";
         touchpad = {
-          natural_scroll = "no";
-        };
-        sensitivity = 0.5;
-      };
-      "input:touchpad" = {
-        disable_while_typing = false;
-      };
-      "input:tablet" = {
-        output = "HDMI-A-1";
-       # region_position = "0 1080";
-      };
-      general = {
-        gaps_in = 2;
-        gaps_out = 4;
-        "col.active_border" = "rgba(f5bde6ff) rgba(f5bde6ff) 45deg";
-        "col.inactive_border" = "rgba(363a4fff)";
-        layout = "master";
-      };
-      decoration = {
-        rounding = 8;
-        blur = {
-           enabled = true;
-           size = 16;
-           passes = 4;
-        };
-        inactive_opacity = 0.85;
-        shadow = {
-          enabled = true;
-          range = 3;
-          render_power = 3;
-          color = "rgba(1a1a1aff)";
+          natural-scroll = false;
         };
       };
-      cursor = {
-        no_hardware_cursors = 0;
+      layout = {
+        gaps = 4;
+        focus-ring = {
+          width = 2;
+          active = {
+            color = "rgb(245, 189, 230)";
+          };
+        };
       };
-      animations = {
-        enabled = "yes";
-        bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
-        animation = [
-          "windows, 1, 7, myBezier, popin"
-          "border, 1, 10, default"
-          "borderangle, 1, 8, default"
-          "workspaces, 1, 6, default"
-        ];
-      };
-      dwindle = {
-        pseudotile = "yes";
-        preserve_split = true;
-      };
-      scrolling = {
-        follow_focus = false;
-      };
-      master = {
-        orientation = "center";
-        slave_count_for_center_master = 1;
-        # always_center_master = true;
-      };
-      gesture = [
-        "4, horizontal, workspace"
-        "3, vertical, move"
-        "3, horizontal, resize"
-        "4, up, fullscreen"
-        "4, down, fullscreen, minimize"
-      ];
-      device = [{
-        name = "hid-256c:006d-pen";
-        region_position = "0 0";
-        output = "HDMI-A-1";
-      }];
-      windowrule = [
-       "match:class ^$,match:title ^$,match:xwayland 1,match:float 1,match:fullscreen 0,match:pin 0, no_focus on"
-       #"stayfocused, title:^()$,class:^(steam)$"
-       #"minsize 1 1, title:^()$,class:^(steam)$"
-       ## "stayfocused, class:^(OrcaSlicer)$,title:^()$"
-       "match:title ^(Picture-in-Picture), float on, pin on"
-      ];
-      layerrule = [
-      ];
-      bindki = [
-        ", minus, razer-razer-naga-v2-hyperspeed-1, pass, class:^discord$"
-        ", equal, razer-razer-naga-v2-hyperspeed-1, sendkeystate, F13, down, class:^discord$"
-      ];
-      bindkir = [
-        ", equal, razer-razer-naga-v2-hyperspeed-1, sendkeystate, F13, up, class:^discord$"
-      ];
-      bindr = [
-        "$mainMod, Super_L, exec, killall rofi || uwsm app -- rofi -show drun -show-icons"
-      ];
-      bind =
+      binds = lib.attrsets.mergeAttrsList (
         [
-          ", mouse:275, pass, class:^(discord)$"
-          "$mainMod, Q, killactive,"
-          "$mainMod, C, sendshortcut, CTRL, C"
-          "$mainMod, V, sendshortcut, CTRL, V"
-          "$mainMod, X, sendshortcut, CTRL, X"
-          "$mainMod, Escape, exit,"
-          "$mainMod, A, exec, nautilus -w"
-          "$mainMod, R, exec, uwsm app -- firefox"
-          "$mainMod, F, togglefloating,"
-          "$mainMod, Space, exec, uwsm app -- kitty"
-          "$mainMod, T, pseudo,"
-          "$mainMod, tab, exec, pkill waybar || uwsm app -- waybar"
-          ", Print, exec, uwsm app -- grim -g \"$(slurp -d)\" - | wl-copy"
-          "SHIFT, Print, exec, uwsm app -- grim - | wl-copy"
-
-          # master binds
-          "$mainMod, left, movefocus, l"
-          "$mainMod, right, movefocus, r"
-          "$mainMod, up, movefocus, u"
-          "$mainMod, down, movefocus, d"
-          "$mainMod CTRL, left, movewindow, l"
-          "$mainMod CTRL, right, movewindow, r"
-          "$mainMod CTRL, up, movewindow, u"
-          "$mainMod CTRL, down, movewindow, d"
-          "$mainMod, period, layoutmsg, addmaster"
-          "$mainMod, comma, layoutmsg, removemaster"
-          "$mainMod SHIFT, left, resizeactive, -64 0"
-          "$mainMod SHIFT, right, resizeactive, 64 0"
-          "$mainMod SHIFT, up, resizeactive, 0 -64"
-          "$mainMod SHIFT, down, resizeactive, 0 64"
-          "$mainMod ALT, left,  layoutmsg, orientationleft"
-          "$mainMod ALT, right, layoutmsg, orientationright"
-          "$mainMod ALT, up,    layoutmsg, orientationtop"
-          "$mainMod ALT, down,  layoutmsg, orientationbottom"
-
-          "$mainMod, M, movefocus, l"
-          "$mainMod, I, movefocus, r"
-          "$mainMod, E, movefocus, u"
-          "$mainMod, N, movefocus, d"
-          "$mainMod, J, movewindow, l"
-          "$mainMod, Y, movewindow, r"
-          "$mainMod, U, movewindow, u"
-          "$mainMod, L, movewindow, d"
-          "$mainMod, semicolon, layoutmsg, addmaster"
-          "$mainMod, O, layoutmsg, removemaster"
-          "$mainMod, K, resizeactive, -64 0"
-          "$mainMod, H, resizeactive, 0 64"
-          "$mainMod ALT, M,  layoutmsg, orientationleft"
-          "$mainMod ALT, I, layoutmsg, orientationright"
-          "$mainMod ALT, E,    layoutmsg, orientationtop"
-          "$mainMod ALT, N,  layoutmsg, orientationbottom"
-          "$mainMod ALT, space,  layoutmsg, orientationcenter"
-
-          "$mainMod, mouse_up, layoutmsg, removemaster"
-          #"$mainMod, mouse_up, layoutmsg, move +col"
-          "$mainMod, mouse_down, layoutmsg, addmaster"
-          #"$mainMod, mouse_down, layoutmsg, move -col"
+          {
+            "Mod+Space".action.spawn = [
+              "rofi"
+              "-show"
+              "drun"
+              "-show-icons"
+            ];
+            "Mod+Comma".action.consume-window-into-column = [ ];
+            "Mod+Period".action.expel-window-from-column = [ ];
+            "Mod+BracketLeft".action.consume-or-expel-window-left = [ ];
+            "Mod+BracketRight".action.consume-or-expel-window-right = [ ];
+            "Mod+Return".action.spawn = "kitty";
+            "Mod+Q".action.close-window = [ ];
+            "Mod+Escape".action.quit = [ ];
+            "Mod+Shift+E".action.set-window-height = "+5%";
+            "Mod+Shift+I".action.set-window-height = "-5%";
+            "Mod+Shift+O".action.set-column-width = "+5%";
+            "Mod+Shift+N".action.set-column-width = "-5%";
+            "Mod+E".action.focus-window-up = [ ];
+            "Mod+I".action.focus-window-down = [ ];
+            "Mod+N".action.focus-column-left = [ ];
+            "Mod+O".action.focus-column-right = [ ];
+            "Mod+Ctrl+E".action.move-window-up = [ ];
+            "Mod+Ctrl+I".action.move-window-down = [ ];
+            "Mod+Ctrl+N".action.move-column-left = [ ];
+            "Mod+Ctrl+O".action.move-column-right = [ ];
+            "Mod+Home".action.focus-column-first = [ ];
+            "Mod+End".action.focus-column-last = [ ];
+            "Mod+F".action.maximize-column = [ ];
+            "Mod+Shift+F".action.fullscreen-window = [ ];
+            "Print".action.screenshot = {
+              show-pointer = false;
+            };
+            "Ctrl+Print".action.screenshot-screen = {
+              show-pointer = false;
+            };
+            "Shift+Print".action.screenshot-window = { };
+            "XF86AudioMute".action.spawn = [
+              "wpctl"
+              "set-mute"
+              "@DEFAULT_AUDIO_SINK@"
+              "toggle"
+            ];
+            "XF86AudioRaiseVolume".action.spawn = [
+              "wpctl"
+              "set-volume"
+              "@DEFAULT_AUDIO_SINK@"
+              "0.1+"
+            ];
+            "XF86AudioLowerVolume".action.spawn = [
+              "wpctl"
+              "set-volume"
+              "@DEFAULT_AUDIO_SINK@"
+              "0.1-"
+            ];
+          }
         ]
-        ++ builtins.concatLists (
-          builtins.genList (
-            x:
-            let
-              ws = if x == 0 then 10 else x;
-              key = toString x;
-            in
-            [
-              "$mainMod, ${key}, workspace, ${toString ws}"
-              "$mainMod SHIFT, ${key}, movetoworkspace, ${toString ws}"
-              "$mainMod CTRL, ${key}, workspace, ${toString (ws + 10)}"
-              "$mainMod CTRL SHIFT, ${key}, movetoworkspace, ${toString(ws + 10)}"
-            ]
-          ) 10
-        );
-
-      bindle = [
-        ", XF86MonBrightnessUp, exec, brightnessctl s +5%"
-        ", XF86MonBrightnessDown, exec, brightnessctl s 5%-"
-        ", XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+"
-        ", XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
-      ];
-      bindl = [
-        ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-        ", XF86AudioPlay, exec, playerctl play-pause # the stupid key is called play , but it toggles "
-        ", XF86AudioNext, exec, playerctl next "
-        ", XF86AudioPrev, exec, playerctl previous"
-      ];
-      bindm = [
-        " $mainMod, mouse:272, movewindow"
-        " $mainMod, mouse:273, resizewindow"
-      ];
+        ++ builtins.genList (
+          x:
+          let
+            ws = if x == 0 then 10 else x;
+            key = toString x;
+          in
+          {
+            "Mod+${key}".action."focus-workspace" = ws;
+            "Mod+Ctrl+${key}".action."move-window-to-workspace" = ws;
+          }
+        ) 10
+      );
     };
   };
   services.udiskie = {
@@ -384,25 +303,25 @@
   services.dunst = {
     enable = true;
     settings = builtins.fromTOML ''
-    [global]
-    font = "FiraCode Nerd Font 14"
-    frame_color = "#f5bde6"
-    separator_color = "frame"
-    highlight = "#f5bde6"
-    corner_radius = 8
+      [global]
+      font = "FiraCode Nerd Font 14"
+      frame_color = "#f5bde6"
+      separator_color = "frame"
+      highlight = "#f5bde6"
+      corner_radius = 8
 
-    [urgency_low]
-    background = "#24273a"
-    foreground = "#cad3f5"
+      [urgency_low]
+      background = "#24273a"
+      foreground = "#cad3f5"
 
-    [urgency_normal]
-    background = "#24273a"
-    foreground = "#cad3f5"
+      [urgency_normal]
+      background = "#24273a"
+      foreground = "#cad3f5"
 
-    [urgency_critical]
-    background = "#24273a"
-    foreground = "#cad3f5"
-    frame_color = "#f5a97f"
+      [urgency_critical]
+      background = "#24273a"
+      foreground = "#cad3f5"
+      frame_color = "#f5a97f"
     '';
   };
   services.hyprpaper = {
@@ -416,10 +335,12 @@
         "${./wallpapers/atlandscape.jpg}"
         "${./wallpapers/attreehouse.jpg}"
       ];
-      wallpaper = [{
-      	monitor = "";
-      	path = "${./wallpapers/attreehouse.jpg}";
-      }];
+      wallpaper = [
+        {
+          monitor = "";
+          path = "${./wallpapers/attreehouse.jpg}";
+        }
+      ];
     };
   };
   services.hypridle = {
@@ -444,7 +365,7 @@
       window#waybar {
         opacity: 1.0;
         border-radius: 8 8 0 0;
-        background: alpha(#24273a, 0.7);
+        background: alpha(#24273a, 0.9);
         color: #cad3f5;
       }
       .modules-right {
@@ -494,11 +415,11 @@
         spacing = 2;
         modules-left = [
           "custom/rofi"
-          "hyprland/workspaces"
+          "niri/workspaces"
           "wlr/taskbar"
         ];
         modules-center = [
-          "hyprland/window"
+          "niri/window"
           "mpris"
         ];
         modules-right = [
@@ -644,86 +565,87 @@
     withRuby = true;
     withPython3 = true;
     initLua = ''
-    vim.cmd.colorscheme "catppuccin-macchiato"
-    -- paths to check for project.godot file
-    local paths_to_check = {'/', '/../'}
-    local is_godot_project = false
-    local godot_project_path = ""
-    local cwd = vim.fn.getcwd()
-    local telescope = require('telescope.builtin')
-    local dap = require('dap')
+      vim.cmd.colorscheme "catppuccin-macchiato"
+      -- paths to check for project.godot file
+      local paths_to_check = {'/', '/../'}
+      local is_godot_project = false
+      local godot_project_path = ""
+      local cwd = vim.fn.getcwd()
+      local telescope = require('telescope.builtin')
+      local dap = require('dap')
 
-    require("catppuccin").setup({
-        flavour = "macchiato"
-    })
-    vim.g.mapleader = ","
-    vim.keymap.set('n', '<C-p>', telescope.find_files, {})
-    vim.cmd.colorscheme "catppuccin"
-    vim.opt.wrap = false        
-    vim.opt.number = true
-    vim.opt.expandtab = true
-    vim.opt.tabstop = 2
-    vim.opt.shiftwidth = 2
+      require("catppuccin").setup({
+          flavour = "macchiato"
+      })
+      vim.g.mapleader = ","
+      vim.keymap.set('n', '<C-p>', telescope.find_files, {})
+      vim.cmd.colorscheme "catppuccin"
+      vim.opt.wrap = false        
+      vim.opt.number = true
+      vim.opt.expandtab = true
+      vim.opt.tabstop = 2
+      vim.opt.shiftwidth = 2
 
-    -- iterate over paths and check
-    for key, value in pairs(paths_to_check) do
-        if vim.uv.fs_stat(cwd .. value .. 'project.godot') then
-            is_godot_project = true
-            godot_project_path = cwd .. value
-            break
-        end
-    end
-    dap.configurations.gdscript = {
-      {
-        type = "godot",
-        request = "launch",
-        name = "Launch Scene",
-        project = "''${workspaceFolder}"
+      -- iterate over paths and check
+      for key, value in pairs(paths_to_check) do
+          if vim.uv.fs_stat(cwd .. value .. 'project.godot') then
+              is_godot_project = true
+              godot_project_path = cwd .. value
+              break
+          end
+      end
+      dap.configurations.gdscript = {
+        {
+          type = "godot",
+          request = "launch",
+          name = "Launch Scene",
+          project = "''${workspaceFolder}"
+        }
       }
-    }
 
-    dap.adapters.godot = {
-      type = "server",
-      host = "127.0.0.1",
-      port = 6006
-    }
-    vim.keymap.set('n', '<F5>', function() require('dap').continue() end)
-    vim.keymap.set('n', '<F10>', function() require('dap').step_over() end)
-    vim.keymap.set('n', '<F11>', function() require('dap').step_into() end)
-    vim.keymap.set('n', '<F12>', function() require('dap').step_out() end)
-    vim.keymap.set('n', '<Leader>b', function() require('dap').toggle_breakpoint() end)
-    vim.keymap.set('n', '<Leader>B', function() require('dap').set_breakpoint() end)
-    vim.keymap.set('n', '<Leader>lp', function() require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: ')) end)
-    vim.keymap.set('n', '<Leader>dr', function() require('dap').repl.open() end)
-    vim.keymap.set('n', '<Leader>dl', function() require('dap').run_last() end)
-    vim.keymap.set({'n', 'v'}, '<Leader>dh', function()
-      require('dap.ui.widgets').hover()
-    end)
-    vim.keymap.set({'n', 'v'}, '<Leader>dp', function()
-      require('dap.ui.widgets').preview()
-    end)
-    vim.keymap.set('n', '<Leader>df', function()
-      local widgets = require('dap.ui.widgets')
-      widgets.centered_float(widgets.frames)
-    end)
-    vim.keymap.set('n', '<Leader>ds', function()
-      local widgets = require('dap.ui.widgets')
-      widgets.centered_float(widgets.scopes)
-    end)
+      dap.adapters.godot = {
+        type = "server",
+        host = "127.0.0.1",
+        port = 6006
+      }
+      vim.keymap.set('n', '<F5>', function() require('dap').continue() end)
+      vim.keymap.set('n', '<F10>', function() require('dap').step_over() end)
+      vim.keymap.set('n', '<F11>', function() require('dap').step_into() end)
+      vim.keymap.set('n', '<F12>', function() require('dap').step_out() end)
+      vim.keymap.set('n', '<Leader>b', function() require('dap').toggle_breakpoint() end)
+      vim.keymap.set('n', '<Leader>B', function() require('dap').set_breakpoint() end)
+      vim.keymap.set('n', '<Leader>lp', function() require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: ')) end)
+      vim.keymap.set('n', '<Leader>dr', function() require('dap').repl.open() end)
+      vim.keymap.set('n', '<Leader>dl', function() require('dap').run_last() end)
+      vim.keymap.set({'n', 'v'}, '<Leader>dh', function()
+        require('dap.ui.widgets').hover()
+      end)
+      vim.keymap.set({'n', 'v'}, '<Leader>dp', function()
+        require('dap.ui.widgets').preview()
+      end)
+      vim.keymap.set('n', '<Leader>df', function()
+        local widgets = require('dap.ui.widgets')
+        widgets.centered_float(widgets.frames)
+      end)
+      vim.keymap.set('n', '<Leader>ds', function()
+        local widgets = require('dap.ui.widgets')
+        widgets.centered_float(widgets.scopes)
+      end)
 
 
-    -- check if server is already running in godot project path
-    -- local pipe_path = "/tmp/godot-nvim-" .. vim.fn.fnamemodify(godot_project_path, ':h:t') .. "-server.pipe"
-    local pipe_path = godot_project_path .. "server.pipe"
-    local is_server_running = vim.uv.fs_stat(pipe_path)
-    
-    -- start server, if not already running
-    if is_godot_project and not is_server_running then
-        vim.fn.serverstart(pipe_path)
-    end
+      -- check if server is already running in godot project path
+      -- local pipe_path = "/tmp/godot-nvim-" .. vim.fn.fnamemodify(godot_project_path, ':h:t') .. "-server.pipe"
+      local pipe_path = godot_project_path .. "server.pipe"
+      local is_server_running = vim.uv.fs_stat(pipe_path)
+
+      -- start server, if not already running
+      if is_godot_project and not is_server_running then
+          vim.fn.serverstart(pipe_path)
+      end
     '';
   };
   gtk = {
+    gtk4.theme = config.gtk.theme;
     enable = true;
     theme = {
       name = "catppuccin-macchiato-pink-compact+rimless";
