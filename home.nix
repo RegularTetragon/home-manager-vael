@@ -92,7 +92,6 @@
     brightnessctl
     hyprcursor
     hyprpaper
-    hyprpolkitagent
     thunderbird
     dosbox-x
     kdePackages.kdenlive
@@ -100,7 +99,6 @@
     sweethome3d.application
     alsa-scarlett-gui
     simple-scan
-    gtklp
     vinegar
     pixelorama
     # stable.freecad
@@ -120,7 +118,6 @@
       accent = "pink";
       variant = "macchiato";
     })
-    hyprpolkitagent
     # language servers and such
     clang-tools
     nil
@@ -133,7 +130,7 @@
     #   ];
     # })
   ];
-
+  services.polkit-gnome.enable = true;
   # Let Home Manager install and manage itself.
   programs.git = {
     signing.format = "openpgp";
@@ -230,25 +227,42 @@
               "drun"
               "-show-icons"
             ];
-            "Mod+Comma".action.consume-window-into-column = [ ];
-            "Mod+Period".action.expel-window-from-column = [ ];
-            "Mod+BracketLeft".action.consume-or-expel-window-left = [ ];
-            "Mod+BracketRight".action.consume-or-expel-window-right = [ ];
+            "Mod+WheelScrollDown".action.focus-column-right = [];
+            "Mod+WheelScrollUp".action.focus-column-left = [];
+
+            "Mod+Ctrl+WheelScrollUp".action.consume-or-expel-window-left = [ ];
+            "Mod+Ctrl+WheelScrollDown".action.consume-or-expel-window-right = [ ];
+            "Mod+BracketLeft".action.consume-window-into-column = [ ];
+            "Mod+BracketRight".action.expel-window-from-column = [ ];
+            "Mod+Comma".action.consume-or-expel-window-left = [ ];
+            "Mod+Period".action.consume-or-expel-window-right = [ ];
             "Mod+Return".action.spawn = "kitty";
             "Mod+Q".action.close-window = [ ];
             "Mod+Escape".action.quit = [ ];
-            "Mod+Shift+E".action.set-window-height = "+5%";
-            "Mod+Shift+I".action.set-window-height = "-5%";
-            "Mod+Shift+O".action.set-column-width = "+5%";
-            "Mod+Shift+N".action.set-column-width = "-5%";
-            "Mod+E".action.focus-window-up = [ ];
-            "Mod+I".action.focus-window-down = [ ];
-            "Mod+N".action.focus-column-left = [ ];
-            "Mod+O".action.focus-column-right = [ ];
-            "Mod+Ctrl+E".action.move-window-up = [ ];
-            "Mod+Ctrl+I".action.move-window-down = [ ];
-            "Mod+Ctrl+N".action.move-column-left = [ ];
-            "Mod+Ctrl+O".action.move-column-right = [ ];
+            "Mod+Shift+N".action.set-window-height = "+5%";
+            "Mod+Shift+E".action.set-window-height = "-5%";
+            "Mod+Shift+I".action.set-column-width = "+5%";
+            "Mod+Shift+M".action.set-column-width = "-5%";
+            "Mod+N".action.focus-window-or-workspace-up = [ ];
+            "Mod+E".action.focus-window-or-workspace-down = [ ];
+            "Mod+M".action.focus-column-left = [ ];
+            "Mod+I".action.focus-column-right = [ ];
+            "Mod+Ctrl+N".action.move-window-up-or-to-workspace-up = [ ];
+            "Mod+Ctrl+E".action.move-window-down-or-to-workspace-down = [ ];
+            "Mod+Ctrl+M".action.consume-or-expel-window-left = [ ];
+            "Mod+Ctrl+I".action.consume-or-expel-window-right = [ ];
+            "Mod+A".action.focus-monitor-left  = [];
+            "Mod+R".action.focus-monitor-up    = [];
+            "Mod+S".action.focus-monitor-down  = [];
+            "Mod+T".action.focus-monitor-right = [];
+            "Mod+Ctrl+A".action.move-window-to-monitor-left  = [];
+            "Mod+Ctrl+R".action.move-window-to-monitor-up    = [];
+            "Mod+Ctrl+S".action.move-window-to-monitor-down  = [];
+            "Mod+Ctrl+T".action.move-window-to-monitor-right = [];
+            "Mod+B".action.focus-workspace-up = [];
+            "Mod+G".action.focus-workspace-down = [];
+            "Mod+Ctrl+B".action.move-window-to-workspace-up = [];
+            "Mod+Ctrl+G".action.move-window-to-workspace-down = [];
             "Mod+Home".action.focus-column-first = [ ];
             "Mod+End".action.focus-column-last = [ ];
             "Mod+F".action.maximize-column = [ ];
@@ -257,6 +271,12 @@
               show-pointer = false;
             };
             "Ctrl+Print".action.screenshot-screen = {
+              show-pointer = false;
+            };
+            "Mod+P".action.screenshot = {
+              show-pointer = false;
+            };
+            "Ctrl+Mod+P".action.screenshot-screen = {
               show-pointer = false;
             };
             "Shift+Print".action.screenshot-window = { };
@@ -295,9 +315,6 @@
     };
   };
   services.udiskie = {
-    enable = true;
-  };
-  services.easyeffects = {
     enable = true;
   };
   services.dunst = {
