@@ -3,14 +3,13 @@
 
   inputs = {
     # Specify the source of Home Manager and Nixpkgs.
-    nixpkgs.url = "nixpkgs/nixos-unstable";
+    nixpkgs.url = "nixpkgs/nixos-26.05";
     nixpkgs-stable.url = "nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "nixpkgs/nixos-unstable";
     home-manager = {
-      url = "github:nix-community/home-manager/master";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    niri.url = "github:sodiboo/niri-flake";
   };
 
   outputs =
@@ -19,7 +18,6 @@
       nixpkgs-stable,
       nixpkgs-unstable,
       home-manager,
-      niri,
       ...
     }:
     let
@@ -42,7 +40,6 @@
         overlays = [
           overlay-stable
           overlay-unstable
-          niri.overlays.niri
         ];
       };
     in
@@ -53,7 +50,6 @@
         modules = [
           ./home.nix
           ./callisto.nix
-          niri.homeModules.niri
         ];
       };
       homeConfigurations."vael@ganymede" = home-manager.lib.homeManagerConfiguration {
@@ -61,7 +57,6 @@
         modules = [
           ./home.nix
           ./ganymede.nix
-          niri.homeModules.niri
         ];
       };
     };

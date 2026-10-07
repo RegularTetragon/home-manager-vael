@@ -14,21 +14,21 @@
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.permittedInsecurePackages = [ "freeimage-unstable-2021-11-01" ];
   home.pointerCursor = {
+    enable = true;
     package = pkgs.catppuccin-cursors.macchiatoPink;
     name = "catppuccin-macchiato-pink-cursors";
     size = 16;
     x11.enable = true;
     gtk.enable = true;
   };
-  fonts.fontconfig.enable = true;
   xdg.portal = {
     enable = true;
-    extraPortals = [
-      pkgs.xdg-desktop-portal-gtk
-      pkgs.xdg-desktop-portal-gnome
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
     ];
-
+    xdgOpenUsePortal = true;
   };
+  fonts.fontconfig.enable = true;
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
@@ -113,24 +113,28 @@
     networkmanagerapplet
     valgrind
     jq
-    kdePackages.qtstyleplugin-kvantum
-    (catppuccin-kvantum.override {
-      accent = "pink";
-      variant = "macchiato";
-    })
     # language servers and such
     clang-tools
     nil
-    # (retroarch.override {
-    #   cores = with libretro; [
-    #     mgba
-    #     mupen64plus
-    #     dosbox
-    #     dolphin
-    #   ];
-    # })
+    kdePackages.qtstyleplugin-kvantum
+    (catppuccin-kde.override {
+      flavour = ["macchiato"];
+      accents = ["pink"];
+    })
   ];
-  services.polkit-gnome.enable = true;
+  qt = {
+    style.name = "kvantum";
+    kvantum = {
+      enable = true;
+      settings.General.theme = "Catppuccin-Macchiato-Pink";
+      themes = [
+        (pkgs.catppuccin-kvantum.override {
+          accent = "pink";
+          variant = "macchiato";
+        })
+      ];
+    };
+  };
   # Let Home Manager install and manage itself.
   programs.git = {
     signing.format = "openpgp";
@@ -168,151 +172,13 @@
       sidebar-mode = true;
     };
   };
-
-  programs.niri = {
+  
+  wayland.windowManager.hyprland = {
+    package = pkgs.unstable.hyprland;
     enable = true;
-    package = pkgs.niri-unstable;
-    settings = {
-      prefer-no-csd = true;
-      overview = {
-        backdrop-color = "#181926";
-      };
-      xwayland-satellite = {
-        enable = true;
-        path = lib.getExe pkgs.xwayland-satellite-unstable;
-      };
-
-      spawn-at-startup = [
-        { argv = [ "waybar" ]; }
-        {
-          argv = [
-            "swaybg"
-            "--image"
-            ".config/home-manager/wallpapers/attreehouse.jpg"
-          ];
-        }
-        { argv = [ "dunst" ]; }
-      ];
-      window-rules = [
-        {
-          geometry-corner-radius = {
-            bottom-left = 8.0;
-            bottom-right = 8.0;
-            top-left = 8.0;
-            top-right = 8.0;
-          };
-          clip-to-geometry = true;
-        }
-      ];
-      input = {
-        touchpad = {
-          natural-scroll = false;
-        };
-      };
-      layout = {
-        gaps = 4;
-        focus-ring = {
-          width = 2;
-          active = {
-            color = "rgb(245, 189, 230)";
-          };
-        };
-      };
-      binds = lib.attrsets.mergeAttrsList (
-        [
-          {
-            "Mod+Space".action.spawn = [
-              "rofi"
-              "-show"
-              "drun"
-              "-show-icons"
-            ];
-            "Mod+WheelScrollDown".action.focus-column-right = [];
-            "Mod+WheelScrollUp".action.focus-column-left = [];
-
-            "Mod+Ctrl+WheelScrollUp".action.consume-or-expel-window-left = [ ];
-            "Mod+Ctrl+WheelScrollDown".action.consume-or-expel-window-right = [ ];
-            "Mod+BracketLeft".action.consume-window-into-column = [ ];
-            "Mod+BracketRight".action.expel-window-from-column = [ ];
-            "Mod+Comma".action.consume-or-expel-window-left = [ ];
-            "Mod+Period".action.consume-or-expel-window-right = [ ];
-            "Mod+Return".action.spawn = "kitty";
-            "Mod+Q".action.close-window = [ ];
-            "Mod+Escape".action.quit = [ ];
-            "Mod+Shift+N".action.set-window-height = "+5%";
-            "Mod+Shift+E".action.set-window-height = "-5%";
-            "Mod+Shift+I".action.set-column-width = "+5%";
-            "Mod+Shift+M".action.set-column-width = "-5%";
-            "Mod+N".action.focus-window-or-workspace-up = [ ];
-            "Mod+E".action.focus-window-or-workspace-down = [ ];
-            "Mod+M".action.focus-column-left = [ ];
-            "Mod+I".action.focus-column-right = [ ];
-            "Mod+Ctrl+N".action.move-window-up-or-to-workspace-up = [ ];
-            "Mod+Ctrl+E".action.move-window-down-or-to-workspace-down = [ ];
-            "Mod+Ctrl+M".action.consume-or-expel-window-left = [ ];
-            "Mod+Ctrl+I".action.consume-or-expel-window-right = [ ];
-            "Mod+A".action.focus-monitor-left  = [];
-            "Mod+R".action.focus-monitor-up    = [];
-            "Mod+S".action.focus-monitor-down  = [];
-            "Mod+T".action.focus-monitor-right = [];
-            "Mod+Ctrl+A".action.move-window-to-monitor-left  = [];
-            "Mod+Ctrl+R".action.move-window-to-monitor-up    = [];
-            "Mod+Ctrl+S".action.move-window-to-monitor-down  = [];
-            "Mod+Ctrl+T".action.move-window-to-monitor-right = [];
-            "Mod+B".action.focus-workspace-up = [];
-            "Mod+G".action.focus-workspace-down = [];
-            "Mod+Ctrl+B".action.move-window-to-workspace-up = [];
-            "Mod+Ctrl+G".action.move-window-to-workspace-down = [];
-            "Mod+Home".action.focus-column-first = [ ];
-            "Mod+End".action.focus-column-last = [ ];
-            "Mod+F".action.maximize-column = [ ];
-            "Mod+Shift+F".action.fullscreen-window = [ ];
-            "Print".action.screenshot = {
-              show-pointer = false;
-            };
-            "Ctrl+Print".action.screenshot-screen = {
-              show-pointer = false;
-            };
-            "Mod+P".action.screenshot = {
-              show-pointer = false;
-            };
-            "Ctrl+Mod+P".action.screenshot-screen = {
-              show-pointer = false;
-            };
-            "Shift+Print".action.screenshot-window = { };
-            "XF86AudioMute".action.spawn = [
-              "wpctl"
-              "set-mute"
-              "@DEFAULT_AUDIO_SINK@"
-              "toggle"
-            ];
-            "XF86AudioRaiseVolume".action.spawn = [
-              "wpctl"
-              "set-volume"
-              "@DEFAULT_AUDIO_SINK@"
-              "0.1+"
-            ];
-            "XF86AudioLowerVolume".action.spawn = [
-              "wpctl"
-              "set-volume"
-              "@DEFAULT_AUDIO_SINK@"
-              "0.1-"
-            ];
-          }
-        ]
-        ++ builtins.genList (
-          x:
-          let
-            ws = if x == 0 then 10 else x;
-            key = toString x;
-          in
-          {
-            "Mod+${key}".action."focus-workspace" = ws;
-            "Mod+Ctrl+${key}".action."move-window-to-workspace" = ws;
-          }
-        ) 10
-      );
-    };
+    # see flake
+    systemd.enable = false;
+    configType = "lua";
   };
   services.udiskie = {
     enable = true;
@@ -343,6 +209,7 @@
   };
   services.hyprpaper = {
     # see flake
+    enable = true;
     settings = {
       ipc = "on";
       splash = false;
@@ -432,12 +299,11 @@
         spacing = 2;
         modules-left = [
           "custom/rofi"
-          "niri/workspaces"
           "wlr/taskbar"
+          "hyprland/workspaces"
         ];
         modules-center = [
-          "niri/window"
-          "mpris"
+          "hyprland/window"
         ];
         modules-right = [
           "bluetooth"
